@@ -18,3 +18,4 @@ django-heroku==0.3.1
 django-stubs==1.4.0
 djangorestframework-stubs==1.1.0
 s3transfer==0.2.1
+django-cors-headers
