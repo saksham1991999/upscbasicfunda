@@ -7,6 +7,7 @@ from quiz.serializers import MyQuizListSerializer, QuizDetailSerializer, QuizLis
 from core import models as coremodels
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 import datetime
+from django_filters.rest_framework import DjangoFilterBackend
 
 class MyQuizListAPI(generics.ListAPIView):
 	permission_classes = [
@@ -25,10 +26,28 @@ class MyQuizListAPI(generics.ListAPIView):
 				Q(description__icontains=query)
 			).distinct()
 		
-		# if complete:
-		# 	queryset = queryset.filter(complete=complete)
-
 		return queryset
+	
+	def list(self,request,*args,**kwargs):
+		qs = self.get_queryset()
+		serializer = self.serializer_class(qs,many=True)
+		complete = request.GET.get("complete")
+		data=list()
+		data2=list()
+		if complete:
+			complete=complete.lower()
+			for i in serializer.data:
+				if i['complete']:
+					data.append(i)
+				else:
+					data2.append(i)
+		if complete:
+			if complete == 'true':
+				return Response(data)
+			elif complete == 'false':
+				return Response(data2)
+		else:
+			return Response(serializer.data)
 
 
 class QuizListAPI(generics.ListAPIView):
@@ -41,18 +60,37 @@ class QuizListAPI(generics.ListAPIView):
 		queryset = Quiz.objects.filter(roll_out=True)
 		# .exclude(quiztaker__user=self.request.user)
 		query = self.request.GET.get("q")
-		isLive = slef.request.GET.get("live")
 
 		if query:
 			queryset = queryset.filter(
 				Q(name__icontains=query) |
 				Q(description__icontains=query)
 			).distinct()
-		
-		# if isLive:
-		# 	queryset = queryset.filter(live=)
 
 		return queryset
+	
+	def list(self,request,*args,**kwargs):
+		qs = self.get_queryset()
+		serializer = self.serializer_class(qs,many=True)
+		live = request.GET.get("live")
+		data=list()
+		data2=list()
+		if live:
+			live=live.lower()
+			for i in serializer.data:
+				if i['live']:
+					data.append(i)
+				else:
+					data2.append(i)
+		if live:
+			if live == 'true':
+				return Response(data)
+			elif live == 'false':
+				return Response(data2)
+		else:
+			return Response(serializer.data)
+
+
 
 
 class QuizDetailAPI(generics.RetrieveAPIView):

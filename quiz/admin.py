@@ -1,6 +1,6 @@
 from django.contrib import admin
 import nested_admin
-from .models import Quiz, Question, Answer, QuizTaker, UsersAnswer
+from .models import Quiz, Question, Answer, QuizTaker, UsersAnswer, QuizSlot
 
 
 class AnswerInline(nested_admin.NestedTabularInline):
@@ -32,3 +32,4 @@ admin.site.register(Question)
 admin.site.register(Answer)
 admin.site.register(QuizTaker, QuizTakerAdmin)
 admin.site.register(UsersAnswer)
+admin.site.register(QuizSlot)

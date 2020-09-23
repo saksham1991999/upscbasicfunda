@@ -29,8 +29,8 @@ class QuizSlot(models.Model):
 	class Meta:
 		verbose_name_plural = "Quiz Slots"
 
-	def __str__(self):
-		return self.quiz
+	# def __str__(self):
+	# 	return self.quiz
 
 class Question(models.Model):
 	quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
