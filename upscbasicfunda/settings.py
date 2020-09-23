@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
-import django_heroku
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -25,7 +25,7 @@ SECRET_KEY = '1c37q-d$w#nt9hw5d#detc!kf=n@4bv*+1@&-&3)o2hnxg2jvw'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['upscbasicfunda.herokuapp.com', 'localhost', 'upscbasicfunda.com','upscbasicfunda.in', 'www.upscbasicfunda.com', 'www.upscbasicfunda.in']
+ALLOWED_HOSTS = ['upscbasicfunda.herokuapp.com', 'localhost', 'upscbasicfunda.com','upscbasicfunda.in', 'www.upscbasicfunda.com', 'www.upscbasicfunda.in', "15.207.106.26", "api.upscbasicfunda.com", "127.0.0.1"]
 
 
 # Application definition
@@ -36,16 +36,34 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'whitenoise.runserver_nostatic',
     'django.contrib.staticfiles',
 
-    'rest_framework',
     'corsheaders',
 
+    'rest_framework',
+    'rest_framework.authtoken',
+    'rest_auth',
+    'rest_auth.registration',
+    'django.contrib.sites',
+
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.google',
+    'nested_admin',
+
+
     'core',
+    'blog',
+    'quiz',
+    'cart',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -125,10 +143,69 @@ USE_TZ = True
 
 CORS_ORIGIN_ALLOW_ALL = True
 
+
+SITE_ID = 1
+
 STATIC_URL = '/static/'
-MEDIA_URL = '/media/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static_in_venv')]
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
+STATICFILES_ROOT = os.path.join(BASE_DIR, 'static/')
+
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-STATICFILES_ROOT = os.path.join(BASE_DIR, 'static')
-django_heroku.settings(locals())
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.AllowAny',
+    ),
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.SessionAuthentication',
+    ),
+}
+
+CSRF_COOKIE_NAME = "csrftoken"
+
+
+# ACCOUNT_UNIQUE_EMAIL = True
+ACCOUNT_EMAIL_REQUIRED = False
+ACCOUNT_AUTHENTICATION_METHOD = 'username_email'
+ACCOUNT_EMAIL_VERIFICATION = 'optional'
+ACCOUNT_USERNAME_REQUIRED = False
+AUTH_USER_MODEL = 'core.User'
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+REST_AUTH_SERIALIZERS = {
+    'USER_DETAILS_SERIALIZER': 'core.serializers.UserSerializer',
+    'TOKEN_SERIALIZER': 'core.serializers.TokenSerializer'
+}
+
+REST_AUTH_REGISTER_SERIALIZERS = {
+    'REGISTER_SERIALIZER': 'core.serializers.CustomRegisterSerializer',
+}
+
+
+RAZORPAY_KEY_ID = "rzp_test_d60JA5dzjyDyZ0"
+RAZORPAY_KEY_SECRET = "Kj6MjRcvzX30fZXfpTqhpgU0"
+
+
+# EMAIL
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'upscbasicfunda@gmail.com'
+EMAIL_HOST_PASSWORD = 'upscupscupsc_1234'
+
+# CELERY STUFF
+BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Africa/Nairobi'
+
+
+
