@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
 from django.template.defaultfilters import slugify
-
+from datetime import timedelta
 
 class Quiz(models.Model):
 	name = models.CharField(max_length=100)
@@ -13,7 +13,7 @@ class Quiz(models.Model):
 	roll_out = models.BooleanField(default=False)
 	timestamp = models.DateTimeField(auto_now_add=True)
 	price = models.PositiveSmallIntegerField()
-	duration = models.DurationField()
+	duration = models.DurationField(default=timedelta(1))
 
 	class Meta:
 		ordering = ['timestamp',]

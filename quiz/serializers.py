@@ -1,15 +1,17 @@
-from quiz.models import Quiz, QuizTaker, Question, Answer, UsersAnswer
+from quiz.models import Quiz, QuizTaker, Question, Answer, UsersAnswer, QuizSlot
 from rest_framework import serializers
 from django.db.models import Count
+from datetime import datetime
 
 
 class QuizListSerializer(serializers.ModelSerializer):
 	questions_count = serializers.SerializerMethodField()
 	type = serializers.SerializerMethodField()
+	live = serializers.SerializerMethodField()
 
 	class Meta:
 		model = Quiz
-		fields = ["id", "name", "description", "image", "slug", "questions_count", "price", "type"]
+		fields = ["id", "name", "description", "image", "slug", "questions_count", "price", "type","duration"]
 		read_only_fields = ["questions_count", "type"]
 
 	def get_questions_count(self, obj):
@@ -17,6 +19,14 @@ class QuizListSerializer(serializers.ModelSerializer):
 
 	def get_type(self, obj):
 		return "test"
+
+	def get_live(self,obj):
+		quizSlot =  QuizSlot.objects.get(quiz=obj)
+		if datetime.now()>=quizSlot.start_datetime and datetime.now()<=(quizSlot.start_datetime+obj.duration):
+			return True
+		else:
+			return False
+
 
 
 class AnswerSerializer(serializers.ModelSerializer):

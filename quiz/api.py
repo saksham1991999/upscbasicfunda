@@ -17,12 +17,16 @@ class MyQuizListAPI(generics.ListAPIView):
 	def get_queryset(self, *args, **kwargs):
 		queryset = Quiz.objects.filter(quiztaker__user=self.request.user)
 		query = self.request.GET.get("q")
+		complete = self.request.GET.get("complete")
 
 		if query:
 			queryset = queryset.filter(
 				Q(name__icontains=query) |
 				Q(description__icontains=query)
 			).distinct()
+		
+		# if complete:
+		# 	queryset = queryset.filter(complete=complete)
 
 		return queryset
 
@@ -37,12 +41,16 @@ class QuizListAPI(generics.ListAPIView):
 		queryset = Quiz.objects.filter(roll_out=True)
 		# .exclude(quiztaker__user=self.request.user)
 		query = self.request.GET.get("q")
+		isLive = slef.request.GET.get("live")
 
 		if query:
 			queryset = queryset.filter(
 				Q(name__icontains=query) |
 				Q(description__icontains=query)
 			).distinct()
+		
+		# if isLive:
+		# 	queryset = queryset.filter(live=)
 
 		return queryset
 
