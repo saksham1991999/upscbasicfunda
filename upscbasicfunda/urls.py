@@ -6,6 +6,7 @@ from django.urls import path, include
 from rest_framework import routers
 import rest_framework
 from core.views import FacebookLogin
+from core.views import GoogleLogin
 router = routers.DefaultRouter()
 
 
@@ -16,6 +17,7 @@ urlpatterns = [
     path('rest-auth/registration/', include('rest_auth.registration.urls')),
 
     path('rest-auth/facebook/', FacebookLogin.as_view(), name='fb_login'),
+    path('rest-auth/google/', GoogleLogin.as_view(), name='google_login'),
 
     path('admin/', admin.site.urls),
     path('accounts/', include('allauth.urls')),

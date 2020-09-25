@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.google',
     'nested_admin',
+    # "kombu.transport.django",
 
 
     'core',
@@ -208,7 +209,7 @@ EMAIL_HOST_USER = 'upscbasicfunda@gmail.com'
 EMAIL_HOST_PASSWORD = 'upscupscupsc_1234'
 
 # CELERY STUFF
-BROKER_URL = 'redis://localhost:6379'
+CELERY_BROKER_URL = 'redis://localhost:6379'
 CELERY_RESULT_BACKEND = 'redis://localhost:6379'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'

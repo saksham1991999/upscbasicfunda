@@ -9,6 +9,8 @@ from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 import datetime
 from django_filters.rest_framework import DjangoFilterBackend
 
+from quiz.tasks import EndQuiz
+
 class MyQuizListAPI(generics.ListAPIView):
 	permission_classes = [
 		permissions.IsAuthenticated
@@ -112,7 +114,11 @@ class QuizDetailAPI(generics.RetrieveAPIView):
 		if created:
 			for question in Question.objects.filter(quiz=quiz):
 				UsersAnswer.objects.create(quiz_taker=obj, question=question)
+			print(created)
+			EndQuiz.delay(created)
 		else:
+			print(obj.id)
+			EndQuiz.delay(obj.id)
 			last_question = UsersAnswer.objects.filter(quiz_taker=obj, answer__isnull=False)
 			if last_question.count() > 0:
 				last_question = last_question.last().question.id
