@@ -80,7 +80,7 @@ class QuizListAPI(generics.ListAPIView):
 		if live:
 			live=live.lower()
 			for i in serializer.data:
-				if i['live']:
+				if i['islive']:
 					data.append(i)
 				else:
 					data2.append(i)
