@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_auth',
     'rest_auth.registration',
     'django.contrib.sites',
+    'django_celery_results',
 
     'allauth',
     'allauth.account',
@@ -53,6 +54,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount.providers.facebook',
     'allauth.socialaccount.providers.google',
     'nested_admin',
+    # "kombu.transport.django",
 
 
     'core',
@@ -123,6 +125,10 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = (
+ 'django.contrib.auth.backends.ModelBackend',
+ 'allauth.account.auth_backends.AuthenticationBackend',
+ )
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
@@ -163,6 +169,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
 }
 
 CSRF_COOKIE_NAME = "csrftoken"
@@ -190,6 +197,9 @@ REST_AUTH_REGISTER_SERIALIZERS = {
 RAZORPAY_KEY_ID = "rzp_test_d60JA5dzjyDyZ0"
 RAZORPAY_KEY_SECRET = "Kj6MjRcvzX30fZXfpTqhpgU0"
 
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "1059696678278-alrfk4hk0jvpu3hqcok9vjr7fnnbtf6r.apps.googleusercontent.com"
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET ="9eaJWRlPNhOOTFaSJfnaCyV0"
+
 
 # EMAIL
 EMAIL_USE_TLS = True
@@ -200,12 +210,25 @@ EMAIL_HOST_USER = 'upscbasicfunda@gmail.com'
 EMAIL_HOST_PASSWORD = 'upscupscupsc_1234'
 
 # CELERY STUFF
-BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_BROKER_URL = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND='django-cache'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Africa/Nairobi'
+CELERY_TIMEZONE = 'UTC'
 
+#google login 
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        }
+    }
+}
 
 

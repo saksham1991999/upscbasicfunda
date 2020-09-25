@@ -1,19 +1,22 @@
 from django.conf import settings
 from django.db import models
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save,post_save
 from django.dispatch import receiver
 from django.template.defaultfilters import slugify
+from datetime import timedelta
 
+from quiz.tasks import EndQuiz
 
 class Quiz(models.Model):
 	name = models.CharField(max_length=100)
 	description = models.CharField(max_length=70)
 	image = models.ImageField()
 	slug = models.SlugField(blank=True)
-	roll_out = models.BooleanField(default=False)
 	timestamp = models.DateTimeField(auto_now_add=True)
 	price = models.PositiveSmallIntegerField()
-	duration = models.DurationField()
+	duration = models.DurationField(default=timedelta(hours=2))
+	live = models.BooleanField(default=False)
+	roll_out = models.BooleanField(default=False)
 
 	class Meta:
 		ordering = ['timestamp',]
@@ -29,8 +32,8 @@ class QuizSlot(models.Model):
 	class Meta:
 		verbose_name_plural = "Quiz Slots"
 
-	def __str__(self):
-		return self.quiz
+	# def __str__(self):
+	# 	return self.quiz
 
 class Question(models.Model):
 	quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
@@ -75,3 +78,15 @@ class UsersAnswer(models.Model):
 @receiver(pre_save, sender=Quiz)
 def slugify_name(sender, instance, *args, **kwargs):
 	instance.slug = slugify(instance.name)
+
+# @receiver(post_save,sender=QuizTaker)
+# def answering(sender,instance,created,*args,**kwargs):
+# 	if created:
+# 		print(instance)
+# 		print("ok")
+# 		print(sender.quiz)
+# 		EndQuiz(instance)
+
+
+# post_save.connect(answering, sender=QuizTaker)
+

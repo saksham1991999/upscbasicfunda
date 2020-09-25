@@ -7,6 +7,9 @@ from quiz.serializers import MyQuizListSerializer, QuizDetailSerializer, QuizLis
 from core import models as coremodels
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 import datetime
+from django_filters.rest_framework import DjangoFilterBackend
+
+from quiz.tasks import EndQuiz
 
 class MyQuizListAPI(generics.ListAPIView):
 	permission_classes = [
@@ -17,14 +20,36 @@ class MyQuizListAPI(generics.ListAPIView):
 	def get_queryset(self, *args, **kwargs):
 		queryset = Quiz.objects.filter(quiztaker__user=self.request.user)
 		query = self.request.GET.get("q")
+		complete = self.request.GET.get("complete")
 
 		if query:
 			queryset = queryset.filter(
 				Q(name__icontains=query) |
 				Q(description__icontains=query)
 			).distinct()
-
+		
 		return queryset
+	
+	def list(self,request,*args,**kwargs):
+		qs = self.get_queryset()
+		serializer = self.serializer_class(qs,many=True)
+		complete = request.GET.get("complete")
+		data=list()
+		data2=list()
+		if complete:
+			complete=complete.lower()
+			for i in serializer.data:
+				if i['complete']:
+					data.append(i)
+				else:
+					data2.append(i)
+		if complete:
+			if complete == 'true':
+				return Response(data)
+			elif complete == 'false':
+				return Response(data2)
+		else:
+			return Response(serializer.data)
 
 
 class QuizListAPI(generics.ListAPIView):
@@ -45,6 +70,29 @@ class QuizListAPI(generics.ListAPIView):
 			).distinct()
 
 		return queryset
+	
+	def list(self,request,*args,**kwargs):
+		qs = self.get_queryset()
+		serializer = self.serializer_class(qs,many=True)
+		live = request.GET.get("live")
+		data=list()
+		data2=list()
+		if live:
+			live=live.lower()
+			for i in serializer.data:
+				if i['live']:
+					data.append(i)
+				else:
+					data2.append(i)
+		if live:
+			if live == 'true':
+				return Response(data)
+			elif live == 'false':
+				return Response(data2)
+		else:
+			return Response(serializer.data)
+
+
 
 
 class QuizDetailAPI(generics.RetrieveAPIView):
@@ -66,7 +114,11 @@ class QuizDetailAPI(generics.RetrieveAPIView):
 		if created:
 			for question in Question.objects.filter(quiz=quiz):
 				UsersAnswer.objects.create(quiz_taker=obj, question=question)
+			print(created)
+			EndQuiz.delay(created)
 		else:
+			print(obj.id)
+			EndQuiz.delay(obj.id)
 			last_question = UsersAnswer.objects.filter(quiz_taker=obj, answer__isnull=False)
 			if last_question.count() > 0:
 				last_question = last_question.last().question.id
