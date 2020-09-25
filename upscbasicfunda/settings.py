@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'rest_auth',
     'rest_auth.registration',
     'django.contrib.sites',
+    'django_celery_results',
 
     'allauth',
     'allauth.account',
@@ -210,11 +211,12 @@ EMAIL_HOST_PASSWORD = 'upscupscupsc_1234'
 
 # CELERY STUFF
 CELERY_BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'redis://localhost:6379'
+CELERY_RESULT_BACKEND = 'django-db'
+CELERY_CACHE_BACKEND='django-cache'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'Africa/Nairobi'
+CELERY_TIMEZONE = 'UTC'
 
 #google login 
 SOCIALACCOUNT_PROVIDERS = {

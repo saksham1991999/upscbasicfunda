@@ -48,6 +48,9 @@ def EndQuiz(instance):
     quizid=quiztaker.quiz_id
     print(quizid)
     quiz = models.Quiz.objects.get(id=quizid)
+    if quiztaker.completed:
+        print("quiz completed")
+        return True
     if quiz.live==False:
         
         time = str(quiz.duration)
@@ -55,8 +58,7 @@ def EndQuiz(instance):
         duration = ss + 60*(mm + 60*hh)
 
         print(duration)
-        sleep(duration)
-
+        sleep(5)
         quiztaker.complete=True
         quiztaker.date_finished=datetime.now()
         correct_answers = 0
@@ -70,8 +72,13 @@ def EndQuiz(instance):
 
         aggregate = models.QuizTaker.objects.filter(score__lt=quiztaker.score).aggregate(ranking=Count('score'))
         quiztaker.quiz_day_rank = int(aggregate['ranking'] + 1)
-
+        print(quiztaker)
         quiztaker.save()
         print("quiz over")
-
+        # data={
+        #     "complete":True,
+        #     "date_finsihed":quiztaker.date_finished,
+        #     "score":quiztaker.score,
+        #     "quiz_day_rank":quiztaker.quiz_day_rank
+        # }
     return True
