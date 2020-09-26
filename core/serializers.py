@@ -253,6 +253,13 @@ class SearchSerializer(serializers.Serializer):
     tests = QuizListSerializer(many=True, read_only = True)
 
 
+class GeneralNotificationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.GeneralNotification
+        fields = '__all__'
+
+
 
 
 

@@ -149,8 +149,19 @@ class UserSubscriptions(models.Model):
     class Meta:
         verbose_name_plural = 'User Subscriptions'
 
+class GeneralNotification(models.Model):
+
+    title =models.CharField(max_length=250)
+    description = models.TextField()
+    rollOut = models.BooleanField(default=True)
+    timeStamp = models.DateTimeField(auto_now_add=True)
 
 
+    class Meta:
+        verbose_name_plural = 'General Notification'
+    
+    def __str__(self):
+        return self.title
 
 @receiver(post_save, sender=User)
 def my_callback(sender, instance, *args, **kwargs):

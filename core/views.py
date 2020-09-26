@@ -4,7 +4,7 @@ from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView, ListAPIView
 from rest_framework.decorators import api_view, schema
 
 from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
@@ -350,3 +350,13 @@ class SearchSubscriptionsView(APIView):
 
         data = serializers.SearchSerializer(subscriptions).data
         return Response(data)
+
+class Notification(ListAPIView):
+
+    queryset = models.GeneralNotification.objects.all()
+    serializer_class = serializers.GeneralNotificationSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        queryset = self.queryset.filter(rollOut=True)
+        return queryset
