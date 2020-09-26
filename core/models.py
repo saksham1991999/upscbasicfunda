@@ -153,8 +153,10 @@ class GeneralNotification(models.Model):
 
     title =models.CharField(max_length=250)
     description = models.TextField()
+    link = models.URLField(default='',blank=True)
     rollOut = models.BooleanField(default=True)
     timeStamp = models.DateTimeField(auto_now_add=True)
+    
 
 
     class Meta:
