@@ -165,6 +165,18 @@ class GeneralNotification(models.Model):
     def __str__(self):
         return self.title
 
+class PersonalNotification(models.Model):
+
+    user = models.ForeignKey('core.User',on_delete=models.PROTECT)
+    quiz = models.ForeignKey('quiz.Quiz',on_delete=models.PROTECT)
+    timestamp = models.DateTimeField(auto_now_add= True)
+
+    class Meta:
+        verbose_name_plural = 'Personal Notification'
+    
+    # def __str__(self):
+    #     return self.title
+
 @receiver(post_save, sender=User)
 def my_callback(sender, instance, *args, **kwargs):
     user_subscription = UserSubscriptions.objects.get_or_create(user=instance)

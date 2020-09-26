@@ -6,6 +6,8 @@ from . import models
 from quiz.serializers import *
 import datetime
 
+from quiz.serializers import QuizMInSerializer
+
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = models.User
@@ -259,8 +261,19 @@ class GeneralNotificationSerializer(serializers.ModelSerializer):
         model = models.GeneralNotification
         fields = '__all__'
 
+class PersonalNotification(serializers.ModelSerializer):
 
+    class Meta:
+        model = models.PersonalNotification
+        fields = '__all__'
 
+class Personalnotif(serializers.ModelSerializer):
+
+    quiz_set = QuizMInSerializer(many=True)
+    class Meta:
+
+        model = models.PersonalNotification
+        fields = '__all__'
 
 
 

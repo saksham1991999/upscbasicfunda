@@ -18,6 +18,8 @@ from . import serializers, models
 from core import models as coremodels
 from quiz import models as quizmodels
 
+from core.serializers import PersonalNotification
+
 import razorpay
 from django.conf import settings
 
@@ -348,5 +350,17 @@ class ConfirmPaymentView(APIView):
         user_subscriptions.sessions.add(*cart.sessions.all())
         user_subscriptions.tests.add(*cart.tests.all())
         user_subscriptions.save()
+        for i in cart.tests:
+            quiz =quizmodels.objects.get(id=i)
+            if quiz.live ==True:
+                data={
+                    "user_id":cart.user,
+                    "quiz_id":i
+                }
+
+                serializer = PersonalNotification(data=data)
+                serializer.is_valid(raise_exception=True)
+                serializer.save()
+
         return Response({"message": "Payment Successfull"}, status=HTTP_200_OK)
 

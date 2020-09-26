@@ -9,6 +9,13 @@ class QuizSlotSerializer(serializers.ModelSerializer):
 		model = QuizSlot
 		fields = '__all__'
 
+class QuizMInSerializer(serializers.ModelSerializer):
+
+	quizslot_set = QuizSlotSerializer(many=True)
+
+	class Meta:
+		model = Quiz
+		fields =["id","name","duration","quizslot_set"]
 
 class QuizListSerializer(serializers.ModelSerializer):
 	questions_count = serializers.SerializerMethodField()

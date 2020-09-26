@@ -360,3 +360,13 @@ class Notification(ListAPIView):
     def get_queryset(self):
         queryset = self.queryset.filter(rollOut=True)
         return queryset
+
+class PersonalNotification(ListAPIView):
+
+    queryset = models.PersonalNotification.objects.all()
+    serializer_class = serializers.Personalnotif
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = self.queryset.filter(user=self.request.user)
+        return queryset

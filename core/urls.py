@@ -8,6 +8,7 @@ app_name = 'core'
 urlpatterns = [
 	path("search/", views.SearchSubscriptionsView.as_view()),
 	path("general-notification/",views.Notification.as_view()),
+	path("personal-notification/",views.PersonalNotification.as_view())
 ]
 
 router = DefaultRouter()
