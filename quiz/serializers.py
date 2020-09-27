@@ -21,10 +21,12 @@ class QuizListSerializer(serializers.ModelSerializer):
 	questions_count = serializers.SerializerMethodField()
 	type = serializers.SerializerMethodField()
 	islive = serializers.SerializerMethodField()
+	currentslot = serializers.SerializerMethodField()
+	nextslot = serializers.SerializerMethodField()
 	quizslot_set = QuizSlotSerializer(many=True)
 	class Meta:
 		model = Quiz
-		fields = ["id", "name", "description", "image", "slug", "questions_count", "price", "type","duration","live","islive","quizslot_set"]
+		fields = ["id", "name", "description", "image", "slug", "questions_count", "price", "type","duration","live","islive","currentslot","nextslot","quizslot_set"]
 		read_only_fields = ["questions_count", "type","live"]
 
 	def get_questions_count(self, obj):
@@ -37,11 +39,55 @@ class QuizListSerializer(serializers.ModelSerializer):
 		quizSlot =  QuizSlot.objects.filter(quiz=obj)
 		now = datetime.now(timezone.utc)
 		for slot in quizSlot:
+			# print(slot.id)
+			# print(slot.start_datetime)
+			# print("endtime")
+			# print(slot.start_datetime+obj.duration)
 			if now>=slot.start_datetime and now<=(slot.start_datetime+obj.duration):
+				print("here")
 				return True
 		
 		return False
 
+	def get_currentslot(self,obj):
+		data={}
+		quizSlot =  QuizSlot.objects.filter(quiz=obj)
+		now = datetime.now(timezone.utc)
+		for slot in quizSlot:
+			if now>=slot.start_datetime and now<=(slot.start_datetime+obj.duration):
+
+				datetime_str = str(slot.start_datetime)
+				starttime = datetime_str.split(" ")
+				endtime_str = str(slot.start_datetime+obj.duration)
+				endtime=endtime_str.split(" ")
+				data={
+					"startTime":starttime[1],
+					"duration":obj.duration,
+					"endTime":endtime[1]
+				}
+				return data
+		
+		return data
+
+	def get_nextslot(self,obj):
+		data={}
+		quizSlot =  QuizSlot.objects.filter(quiz=obj)
+		now = datetime.now(timezone.utc)
+		for slot in quizSlot:
+			if now<slot.start_datetime and now<(slot.start_datetime+obj.duration):
+
+				datetime_str = str(slot.start_datetime)
+				starttime = datetime_str.split(" ")
+				endtime_str = str(slot.start_datetime+obj.duration)
+				endtime=endtime_str.split(" ")
+				data={
+					"startTime":starttime[1],
+					"duration":obj.duration,
+					"endTime":endtime[1]
+				}
+				return data
+		
+		return data
 
 class AnswerSerializer(serializers.ModelSerializer):
 	class Meta:

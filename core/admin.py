@@ -79,3 +79,4 @@ admin.site.register(models.Session)
 admin.site.register(models.UserSubscriptions)
 
 admin.site.register(models.GeneralNotification)
+admin.site.register(models.PersonalNotification)
