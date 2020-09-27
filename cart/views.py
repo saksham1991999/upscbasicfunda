@@ -351,7 +351,7 @@ class ConfirmPaymentView(APIView):
         user_subscriptions.sessions.add(cart.sessions.all())
         user_subscriptions.tests.add(cart.tests.all())
         user_subscriptions.save()
-        for i in cart.tests:
+        for i in cart.tests.all():
             quiz =quizmodels.objects.get(id=i)
             if quiz.live ==True:
                 data={
