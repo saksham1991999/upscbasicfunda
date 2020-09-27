@@ -18,6 +18,7 @@ from . import serializers, models
 from core import models as coremodels
 from quiz import models as quizmodels
 
+from core.models import PersonalNotification as PN
 from core.serializers import PersonalNotification
 
 import razorpay
@@ -358,9 +359,8 @@ class ConfirmPaymentView(APIView):
                     "quiz_id":i
                 }
 
-                serializer = PersonalNotification(data=data)
-                serializer.is_valid(raise_exception=True)
-                serializer.save()
+                pn =PN(user_id=cart.user, quiz_id=i)
+                pn.save()
 
         return Response({"message": "Payment Successfull"}, status=HTTP_200_OK)
 
