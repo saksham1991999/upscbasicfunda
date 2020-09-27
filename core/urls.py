@@ -7,6 +7,8 @@ app_name = 'core'
 
 urlpatterns = [
 	path("search/", views.SearchSubscriptionsView.as_view()),
+	path("general-notification/",views.Notification.as_view()),
+	path("personal-notification/",views.PersonalNotification.as_view())
 ]
 
 router = DefaultRouter()
@@ -19,6 +21,7 @@ router.register('faqs', views.FAQViewSet, basename='faqs')
 router.register('articles', views.ArticleViewSet, basename='articles')
 router.register('news', views.NewsViewSet, basename='news')
 router.register('newsletter', views.NewsletterViewSet, basename='newsletter')
+#router.register('General Notifications', views.Notification, basename='general-notification')
 
 router.register('categories', views.CategoryViewSet, basename='category')
 router.register('sub-categories', views.SubCategoryViewSet, basename='sub-category')

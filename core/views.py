@@ -4,13 +4,15 @@ from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView, ListAPIView
 from rest_framework.decorators import api_view, schema
 
 from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from rest_auth.registration.views import SocialLoginView
 from quiz import models as quizmodels
+
+from django.db.models import Q
 class Subscriptions():
     def __init__(self, pdfs, mcqs, summaries, sessions, tests):
         self.pdfs = pdfs
@@ -341,12 +343,32 @@ class SearchSubscriptionsView(APIView):
         search = self.request.query_params.get('search', None)
         if search is not None:
             pdfs = pdfs.filter(name__icontains = search)
-            mcqs = mcqs.filter(name__icontains = search, description__icontains = search)
-            summaries = summaries.filter(name__icontains = search, description__icontains = search)
+            mcqs = mcqs.filter(Q(name__icontains = search) | Q(description__icontains = search))
+            summaries = summaries.filter(Q(name__icontains = search) | Q(description__icontains = search))
             sessions = sessions.filter(name__icontains = search)
-            tests = tests.filter(name__icontains = search, description__icontains = search)
+            tests = tests.filter(Q(name__icontains = search)| Q(description__icontains = search))
 
         subscriptions = Subscriptions(pdfs, mcqs, summaries, sessions, tests)
 
         data = serializers.SearchSerializer(subscriptions).data
         return Response(data)
+
+class Notification(ListAPIView):
+
+    queryset = models.GeneralNotification.objects.all()
+    serializer_class = serializers.GeneralNotificationSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def get_queryset(self):
+        queryset = self.queryset.filter(rollOut=True)
+        return queryset
+
+class PersonalNotification(ListAPIView):
+
+    queryset = models.PersonalNotification.objects.all()
+    serializer_class = serializers.Personalnotif
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = self.queryset.filter(user=self.request.user)
+        return queryset

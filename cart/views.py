@@ -18,6 +18,9 @@ from . import serializers, models
 from core import models as coremodels
 from quiz import models as quizmodels
 
+from core.models import PersonalNotification as PN
+from core.serializers import PersonalNotification
+
 import razorpay
 from django.conf import settings
 
@@ -342,11 +345,22 @@ class ConfirmPaymentView(APIView):
         cart.ordered_date = timezone.now()
         cart.save()
         user_subscriptions, created = coremodels.UserSubscriptions.objects.get_or_create(user = cart.user)
-        user_subscriptions.pdfs.add(*cart.pdfs.all())
-        user_subscriptions.mcqs.add(*cart.mcqs.all())
-        user_subscriptions.summaries.add(*cart.summaries.all())
-        user_subscriptions.sessions.add(*cart.sessions.all())
-        user_subscriptions.tests.add(*cart.tests.all())
+        user_subscriptions.pdfs.add(cart.pdfs.all())
+        user_subscriptions.mcqs.add(cart.mcqs.all())
+        user_subscriptions.summaries.add(cart.summaries.all())
+        user_subscriptions.sessions.add(cart.sessions.all())
+        user_subscriptions.tests.add(cart.tests.all())
         user_subscriptions.save()
+        for i in cart.tests.all():
+            quiz =quizmodels.objects.get(id=i)
+            if quiz.live ==True:
+                data={
+                    "user_id":cart.user,
+                    "quiz_id":i
+                }
+
+                pn =PN(user_id=cart.user, quiz_id=i)
+                pn.save()
+
         return Response({"message": "Payment Successfull"}, status=HTTP_200_OK)
 

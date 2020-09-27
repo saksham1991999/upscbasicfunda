@@ -80,7 +80,7 @@ class QuizListAPI(generics.ListAPIView):
 		if live:
 			live=live.lower()
 			for i in serializer.data:
-				if i['live']:
+				if i['islive']:
 					data.append(i)
 				else:
 					data2.append(i)
@@ -114,11 +114,11 @@ class QuizDetailAPI(generics.RetrieveAPIView):
 		if created:
 			for question in Question.objects.filter(quiz=quiz):
 				UsersAnswer.objects.create(quiz_taker=obj, question=question)
-			print(created)
-			EndQuiz.delay(created)
+			# print(created)
+			# EndQuiz.delay(created)
 		else:
-			print(obj.id)
-			EndQuiz.delay(obj.id)
+			# print(obj.id)
+			# EndQuiz.delay(obj.id)
 			last_question = UsersAnswer.objects.filter(quiz_taker=obj, answer__isnull=False)
 			if last_question.count() > 0:
 				last_question = last_question.last().question.id
