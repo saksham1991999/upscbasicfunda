@@ -16,6 +16,7 @@ class UserCart(models.Model):
     payment = models.ForeignKey('cart.Payment', on_delete=models.PROTECT, blank=True, null=True)
 
     single_product = models.BooleanField(default=False)
+    promocode = models.ForeignKey('core.PromoCode',on_delete=models.PROTECT,blank=True, null=True)
 
     class Meta:
         verbose_name_plural = 'Carts'

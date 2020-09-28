@@ -183,13 +183,13 @@ class PDFSerializer(viewsets.ModelViewSet):
         serializer = serializers.PDFSerializer(pdf, context=serializer_context)
         return Response(serializer.data)
 
-    def list(self,request,*args,**kwargs):
-        queryset = self.get_queryset()
-        serializer_context = {
-            'request': request,
-        }
-        serializer = serializers.PDFListSerializer(queryset,many=True, context=serializer_context)
-        return Response(serializer.data)
+    # def list(self,request,*args,**kwargs):
+    #     queryset = self.get_queryset()
+    #     serializer_context = {
+    #         'request': request,
+    #     }
+    #     serializer = serializers.PDFListSerializer(queryset,many=True, context=serializer_context)
+    #     return Response(serializer.data)
 
 
 class MCQSerializer(viewsets.ModelViewSet):
