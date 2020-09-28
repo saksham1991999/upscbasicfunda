@@ -157,7 +157,7 @@ class PDFListSerializer(serializers.ModelSerializer):
             return file
         
         user = self.context['request'].user
-        if user is not None:
+        if user.id is not None:
             sub = models.UserSubscriptions.get(user = user)
             if obj in sub.pdfs.all():
                 file =self.context['request'].build_absolute_uri(obj.file.url)
@@ -186,7 +186,7 @@ class MCQListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.MCQ
-        fields = [ 'id', 'file', 'name', 'price', 'sub_category', 'image', 'preview_file', 'description', 'type' ,"file"]
+        fields = [ 'id', 'file', 'name', 'price', 'sub_category', 'image', 'preview_file', 'description', 'type', "file"]
 
     def get_type(self, obj):
         return "mcq"
@@ -199,10 +199,9 @@ class MCQListSerializer(serializers.ModelSerializer):
             return file
         
         user = self.context['request'].user
-        print(user)
-        if user is not None:
-            sub = models.MCQ.objects.get(user = user)
-            if obj in sub.pdfs.all():
+        if user.id is not None:
+            sub = models.UserSubscriptions.objects.get(user = user)
+            if obj in sub.mcqs.all():
                 file =self.context['request'].build_absolute_uri(obj.file.url)
                 # return obj.file.url
                 return file
@@ -244,9 +243,9 @@ class SummaryListSerializer(serializers.ModelSerializer):
             return file
         
         user = self.context['request'].user
-        if user is not None:
-            sub = models.Summary.objects.get(user = user)
-            if obj in sub.pdfs.all():
+        if user.id is not None:
+            sub = models.UserSubscriptions.objects.get(user = user)
+            if obj in sub.summaries.all():
                 file =self.context['request'].build_absolute_uri(obj.file.url)
                 # return obj.file.url
                 return file
@@ -297,9 +296,9 @@ class SessionListSerializer(serializers.ModelSerializer):
             return file
         
         user = self.context['request'].user
-        if user is not None:
-            sub = models.Session.objects.get(user = user)
-            if obj in sub.pdfs.all():
+        if user.id is not None:
+            sub = models.UserSubscriptions.objects.get(user = user)
+            if obj in sub.sessions.all():
                 file =self.context['request'].build_absolute_uri(obj.file.url)
                 # return obj.file.url
                 return file

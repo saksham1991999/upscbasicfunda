@@ -169,6 +169,7 @@ class PersonalNotification(models.Model):
 
     user = models.ForeignKey('core.User',on_delete=models.PROTECT)
     quiz = models.ForeignKey('quiz.Quiz',on_delete=models.PROTECT)
+    message = models.TextField()
     timestamp = models.DateTimeField(auto_now_add= True)
 
     class Meta:

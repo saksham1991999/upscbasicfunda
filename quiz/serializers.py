@@ -13,10 +13,27 @@ class QuizSlotSerializer(serializers.ModelSerializer):
 class QuizMInSerializer(serializers.ModelSerializer):
 
 	quizslot_set = QuizSlotSerializer(many=True)
-
+	upcomingslot = serializers.SerializerMethodField()
 	class Meta:
 		model = Quiz
-		fields =["id","name","duration","quizslot_set"]
+		fields =["id","slug","name","duration","quizslot_set"]
+
+	def get_upcomingslot(self,obj):
+		quizSlot =  QuizSlot.objects.filter(quiz=obj)
+		now = datetime.now(timezone("Asia/Calcutta"))
+		for slot in quizSlot:
+			if now>=slot.start_datetime and now<=(slot.start_datetime+obj.duration):
+				data={
+					"starttime":(slot.start_datetime).strftime("%b %d %Y %H:%M:%S"),
+					"endtime":(slot.start_datetime+obj.duration).strftime("%b %d %Y %H:%M:%S")
+				}
+				return data
+			elif now<slot.start_datetime and now<(slot.start_datetime+obj.duration):
+				data={
+					"starttime":(slot.start_datetime).strftime("%b %d %Y %H:%M:%S"),
+					"endtime":(slot.start_datetime+obj.duration).strftime("%b %d %Y %H:%M:%S")
+				}
+				return data
 
 class QuizListSerializer(serializers.ModelSerializer):
 	questions_count = serializers.SerializerMethodField()

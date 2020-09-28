@@ -229,7 +229,7 @@ class MCQSerializer(viewsets.ModelViewSet):
         mcq = get_object_or_404(queryset, pk=pk)
         subscribed = get_object_or_404(models.UserSubscriptions, user=request.user)
         if (mcq in subscribed.mcqs.all()) or mcq.price < 1:
-            serializer = serializers.MCQerializer(mcq, context=serializer_context)
+            serializer = serializers.MCQSerializer(mcq, context=serializer_context)
             return Response(serializer.data)
         else:
             return Response({"message": "MCQ Not Purchased"}, status=HTTP_400_BAD_REQUEST)
@@ -290,7 +290,7 @@ class SummarySerializer(viewsets.ModelViewSet):
         serializer_context = {
             'request': request,
         }
-        serializer = serializers.SummarySerializer(queryset,many=True, context=serializer_context)
+        serializer = serializers.SummaryListSerializer(queryset,many=True, context=serializer_context)
         return Response(serializer.data)
 
 class SessionSerializer(viewsets.ModelViewSet):
@@ -337,7 +337,7 @@ class SessionSerializer(viewsets.ModelViewSet):
         serializer_context = {
             'request': request,
         }
-        serializer = serializers.SessionSerializer(queryset,many=True, context=serializer_context)
+        serializer = serializers.SessionListSerializer(queryset,many=True, context=serializer_context)
         return Response(serializer.data)
 
 class UserSubscriptionsSerializer(viewsets.ModelViewSet):
