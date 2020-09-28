@@ -177,6 +177,16 @@ class PersonalNotification(models.Model):
     # def __str__(self):
     #     return self.title
 
+class PromoCode(models.Model):
+
+    code = models.CharField(max_length = 32)
+    percent = models.PositiveSmallIntegerField()
+    description = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add= True)
+
+    class Meta:
+        verbose_name_plural = 'Promo Codes'
+
 @receiver(post_save, sender=User)
 def my_callback(sender, instance, *args, **kwargs):
     user_subscription = UserSubscriptions.objects.get_or_create(user=instance)

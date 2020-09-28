@@ -183,6 +183,14 @@ class PDFSerializer(viewsets.ModelViewSet):
         serializer = serializers.PDFSerializer(pdf, context=serializer_context)
         return Response(serializer.data)
 
+    def list(self,request,*args,**kwargs):
+        queryset = self.get_queryset()
+        serializer_context = {
+            'request': request,
+        }
+        serializer = serializers.PDFListSerializer(queryset,many=True, context=serializer_context)
+        return Response(serializer.data)
+
 
 class MCQSerializer(viewsets.ModelViewSet):
     queryset = models.MCQ.objects.all()
@@ -349,8 +357,10 @@ class SearchSubscriptionsView(APIView):
             tests = tests.filter(Q(name__icontains = search)| Q(description__icontains = search))
 
         subscriptions = Subscriptions(pdfs, mcqs, summaries, sessions, tests)
-
-        data = serializers.SearchSerializer(subscriptions).data
+        context ={
+            "request":request
+        }
+        data = serializers.SearchSerializer(subscriptions,context=context).data
         return Response(data)
 
 class Notification(ListAPIView):

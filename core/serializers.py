@@ -140,6 +140,7 @@ class PDFListSerializer(serializers.ModelSerializer):
     # url = serializers.HyperlinkedIdentityField(view_name="core:pdf-detail")
     sub_category = SubCategorySerializer(many=False, read_only = True)
     type = serializers.SerializerMethodField(read_only = True)
+    file = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = models.PDF
@@ -147,6 +148,23 @@ class PDFListSerializer(serializers.ModelSerializer):
 
     def get_type(self, obj):
         return "pdf"
+
+    def get_file(self,obj):
+
+        if obj.price<1:
+            file =self.context['request'].build_absolute_uri(obj.file.url)
+            # return obj.file.url
+            return file
+        
+        user = self.context['request'].user
+        if user is not None:
+            sub = models.UserSubscriptions.get(user = user)
+            if obj in sub.pdfs.all():
+                file =self.context['request'].build_absolute_uri(obj.file.url)
+                # return obj.file.url
+                return file
+        else:
+            return None
 
 class MCQSerializer(serializers.ModelSerializer):
     # url = serializers.HyperlinkedIdentityField(view_name="core:mcq-detail")
@@ -164,13 +182,31 @@ class MCQListSerializer(serializers.ModelSerializer):
     # url = serializers.HyperlinkedIdentityField(view_name="core:mcq-detail")
     sub_category = SubCategorySerializer(many=False, read_only = True)
     type = serializers.SerializerMethodField(read_only = True)
+    file = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = models.MCQ
-        fields = [ 'id', 'file', 'name', 'price', 'sub_category', 'image', 'preview_file', 'description', 'type' ]
+        fields = [ 'id', 'file', 'name', 'price', 'sub_category', 'image', 'preview_file', 'description', 'type' ,"file"]
 
     def get_type(self, obj):
         return "mcq"
+
+    def get_file(self,obj):
+
+        if obj.price<1:
+            file =self.context['request'].build_absolute_uri(obj.file.url)
+            # return obj.file.url
+            return file
+        
+        user = self.context['request'].user
+        if user is not None:
+            sub = models.UserSubscriptions.objects.get(user = user)
+            if obj in sub.pdfs.all():
+                file =self.context['request'].build_absolute_uri(obj.file.url)
+                # return obj.file.url
+                return file
+        else:
+            return None
 
 class SummarySerializer(serializers.ModelSerializer):
     # url = serializers.HyperlinkedIdentityField(view_name="core:summary-detail")
@@ -190,19 +226,37 @@ class SummaryListSerializer(serializers.ModelSerializer):
     sub_category = SubCategorySerializer(many=False, read_only = True)
     mcq = MCQListSerializer(many=True, read_only = True)
     type = serializers.SerializerMethodField(read_only = True)
+    file = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = models.Summary
-        fields = ['id', 'name', 'price', 'sub_category', 'description','mcq',  'image', 'preview_file', 'type']
+        fields = ['id', 'name', 'price', 'sub_category', 'description','mcq',  'image', 'preview_file', 'type',"file"]
 
     def get_type(self, obj):
         return "summary"
+    
+    def get_file(self,obj):
+
+        if obj.price<1:
+            file =self.context['request'].build_absolute_uri(obj.file.url)
+            # return obj.file.url
+            return file
+        
+        user = self.context['request'].user
+        if user is not None:
+            sub = models.UserSubscriptions.objects.get(user = user)
+            if obj in sub.pdfs.all():
+                file =self.context['request'].build_absolute_uri(obj.file.url)
+                # return obj.file.url
+                return file
+        else:
+            return None
 
 class SessionSerializer(serializers.ModelSerializer):
     # url = serializers.HyperlinkedIdentityField(view_name="core:session-detail")
     type = serializers.SerializerMethodField(read_only = True)
     upcoming = serializers.SerializerMethodField(read_only = True)
-
+    
     class Meta:
         model = models.Session
         fields = ['id', 'name', 'image', 'price', 'date', 'video','youtube_link', 'type', 'upcoming', 'demo']
@@ -220,10 +274,10 @@ class SessionListSerializer(serializers.ModelSerializer):
     # url = serializers.HyperlinkedIdentityField(view_name="core:session-detail")
     type = serializers.SerializerMethodField(read_only = True)
     upcoming = serializers.SerializerMethodField(read_only = True)
-
+    file = serializers.SerializerMethodField(read_only=True)
     class Meta:
         model = models.Session
-        fields = ['id', 'name', 'image', 'price', 'date','youtube_link', 'type', 'upcoming', 'demo']
+        fields = ['id', 'name', 'image', 'price', 'date','youtube_link', 'type', 'upcoming', 'demo',"file"]
 
     def get_type(self, obj):
         return "session"
@@ -233,14 +287,31 @@ class SessionListSerializer(serializers.ModelSerializer):
             return True
         else:
             return False
+    
+    def get_file(self,obj):
+
+        if obj.price<1:
+            file =self.context['request'].build_absolute_uri(obj.file.url)
+            # return obj.file.url
+            return file
+        
+        user = self.context['request'].user
+        if user is not None:
+            sub = models.UserSubscriptions.objects.get(user = user)
+            if obj in sub.pdfs.all():
+                file =self.context['request'].build_absolute_uri(obj.file.url)
+                # return obj.file.url
+                return file
+        else:
+            return None
 
 class UserSubscriptionsSerializer(serializers.ModelSerializer):
     # url = serializers.HyperlinkedIdentityField(view_name="core:user-subscription-detail")
     user = UserSerializer(many=False, read_only = True)
     pdfs = PDFSerializer(many=True, read_only = True)
-    mcqs = MCQSerializer(many=True, read_only = True)
-    summaries = SummarySerializer(many=True, read_only = True)
-    sessions = SessionSerializer(many=True, read_only = True)
+    mcqs = MCQListSerializer(many=True, read_only = True)
+    summaries = SummaryListSerializer(many=True, read_only = True)
+    sessions = SessionListSerializer(many=True, read_only = True)
     tests = QuizListSerializer(many=True, read_only = True)
 
     class Meta:
@@ -248,13 +319,51 @@ class UserSubscriptionsSerializer(serializers.ModelSerializer):
         fields = ['id', 'user', 'pdfs', 'mcqs', 'summaries', 'sessions', 'tests']
 
 class SearchSerializer(serializers.Serializer):
-    pdfs = PDFSerializer(many=True, read_only = True)
-    mcqs = MCQSerializer(many=True, read_only = True)
-    summaries = SummarySerializer(many=True, read_only = True)
-    sessions = SessionSerializer(many=True, read_only = True)
-    tests = QuizListSerializer(many=True, read_only = True)
 
+    # pdfs = PDFListSerializer(many=True, read_only = True)
+    # mcqs = MCQListSerializer(many=True, read_only = True)
+    # summaries = SummarySerializer(many=True, read_only = True)
+    # sessions = SessionSerializer(many=True, read_only = True)
+    # tests = QuizListSerializer(many=True, read_only = True)
 
+    pdfs = serializers.SerializerMethodField('get_pdfs')
+    mcqs = serializers.SerializerMethodField('get_mcqs')
+    summaries = serializers.SerializerMethodField('get_summaries')
+    sessions = serializers.SerializerMethodField('get_sessions')
+    tests = serializers.SerializerMethodField('get_tests')
+
+    class Meta:
+        fields =["pdfs","mcqs","summaries","sessions","tests"]
+
+    def get_pdfs(self,obj):
+        serializer_context = {'request': self.context.get('request') }
+        queryset = obj.pdfs
+        serializer = PDFListSerializer(queryset, many=True, context=serializer_context)
+        return serializer.data
+
+    def get_mcqs(self,obj):
+        serializer_context = {'request': self.context.get('request') }
+        queryset = obj.mcqs
+        serializer = MCQListSerializer(queryset, many=True, context=serializer_context)
+        return serializer.data
+
+    def get_summaries(self,obj):
+        serializer_context = {'request': self.context.get('request') }
+        queryset = obj.summaries
+        serializer = SummaryListSerializer(queryset, many=True, context=serializer_context)
+        return serializer.data
+
+    def get_sessions(self,obj):
+        serializer_context = {'request': self.context.get('request') }
+        queryset = obj.sessions
+        serializer = SessionListSerializer(queryset, many=True, context=serializer_context)
+        return serializer.data
+
+    def get_tests(self,obj):
+        serializer_context = {'request': self.context.get('request') }
+        queryset = obj.tests
+        serializer = QuizListSerializer(queryset, many=True, context=serializer_context)
+        return serializer.data
 class GeneralNotificationSerializer(serializers.ModelSerializer):
 
     class Meta:
