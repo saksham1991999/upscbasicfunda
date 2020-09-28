@@ -199,8 +199,9 @@ class MCQListSerializer(serializers.ModelSerializer):
             return file
         
         user = self.context['request'].user
+        print(user)
         if user is not None:
-            sub = models.UserSubscriptions.objects.get(user = user)
+            sub = models.MCQ.objects.get(user = user)
             if obj in sub.pdfs.all():
                 file =self.context['request'].build_absolute_uri(obj.file.url)
                 # return obj.file.url
@@ -244,7 +245,7 @@ class SummaryListSerializer(serializers.ModelSerializer):
         
         user = self.context['request'].user
         if user is not None:
-            sub = models.UserSubscriptions.objects.get(user = user)
+            sub = models.Summary.objects.get(user = user)
             if obj in sub.pdfs.all():
                 file =self.context['request'].build_absolute_uri(obj.file.url)
                 # return obj.file.url
@@ -297,7 +298,7 @@ class SessionListSerializer(serializers.ModelSerializer):
         
         user = self.context['request'].user
         if user is not None:
-            sub = models.UserSubscriptions.objects.get(user = user)
+            sub = models.Session.objects.get(user = user)
             if obj in sub.pdfs.all():
                 file =self.context['request'].build_absolute_uri(obj.file.url)
                 # return obj.file.url
