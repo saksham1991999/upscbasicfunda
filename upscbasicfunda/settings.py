@@ -25,8 +25,8 @@ SECRET_KEY = '1c37q-d$w#nt9hw5d#detc!kf=n@4bv*+1@&-&3)o2hnxg2jvw'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['upscbasicfunda.herokuapp.com', 'localhost', 'upscbasicfunda.com','upscbasicfunda.in', 'www.upscbasicfunda.com', 'www.upscbasicfunda.in', "15.207.106.26", "api.upscbasicfunda.com", "127.0.0.1"]
-
+#ALLOWED_HOSTS = ['upscbasicfunda.herokuapp.com', 'localhost', 'upscbasicfunda.com','upscbasicfunda.in', 'www.upscbasicfunda.com', 'www.upscbasicfunda.in', "15.207.106.26", "api.upscbasicfunda.com", "127.0.0.1","http://53a9679257f8.ngrok.io"]
+ALLOWED_HOSTS =['*']
 
 # Application definition
 
@@ -95,6 +95,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'upscbasicfunda.wsgi.application'
 
+# from __future__ import absolute_import
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
@@ -135,7 +136,7 @@ AUTHENTICATION_BACKENDS = (
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Calcutta'
 
 USE_I18N = True
 
@@ -170,6 +171,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DATETIME_FORMAT': "%b %d %Y %H:%M:%S",
 }
 
 CSRF_COOKIE_NAME = "csrftoken"

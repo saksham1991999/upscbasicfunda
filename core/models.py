@@ -3,6 +3,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db.models.signals import pre_save, post_save
 from django.dispatch import receiver
 
+
 class User(AbstractUser):
     mobile = models.CharField(max_length = 16, blank=True, null=True)
     profile_pic = models.ImageField(blank=True, null=True)
@@ -169,6 +170,7 @@ class PersonalNotification(models.Model):
 
     user = models.ForeignKey('core.User',on_delete=models.PROTECT)
     quiz = models.ForeignKey('quiz.Quiz',on_delete=models.PROTECT)
+    message = models.TextField(blank=True,null =True)
     timestamp = models.DateTimeField(auto_now_add= True)
 
     class Meta:
@@ -177,10 +179,24 @@ class PersonalNotification(models.Model):
     # def __str__(self):
     #     return self.title
 
+class PromoCode(models.Model):
+
+    code = models.CharField(max_length = 32)
+    percent = models.PositiveSmallIntegerField()
+    description = models.TextField(blank=True)
+    timestamp = models.DateTimeField(auto_now_add= True)
+
+    class Meta:
+        verbose_name_plural = 'Promo Codes'
+
 @receiver(post_save, sender=User)
 def my_callback(sender, instance, *args, **kwargs):
     user_subscription = UserSubscriptions.objects.get_or_create(user=instance)
 
+@receiver(pre_save, sender = PersonalNotification)
+def my_call(sender,instance,*args,**kwargs):
+
+    instance.message = str(instance.quiz.name)+" has been purchased. Your quiz is scheduled on :"
 
 
 

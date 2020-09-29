@@ -352,15 +352,10 @@ class ConfirmPaymentView(APIView):
         user_subscriptions.tests.add(cart.tests.all())
         user_subscriptions.save()
         for i in cart.tests.all():
-            quiz =quizmodels.objects.get(id=i)
-            if quiz.live ==True:
-                data={
-                    "user_id":cart.user,
-                    "quiz_id":i
-                }
+            if i.live ==True:
+                #message =" has been purchased. Your quiz is scheduled on :"
+                pn =PN.objects.create(user=cart.user, quiz=i)
 
-                pn =PN(user_id=cart.user, quiz_id=i)
-                pn.save()
 
         return Response({"message": "Payment Successfull"}, status=HTTP_200_OK)
 

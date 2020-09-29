@@ -147,7 +147,7 @@ class SubCategoryViewSet(viewsets.ModelViewSet):
 
 class PDFSerializer(viewsets.ModelViewSet):
     queryset = models.PDF.objects.all()
-    serializer_class = serializers.PDFListSerializer
+    serializer_class = serializers.PDFSerializer
 
     def get_permissions(self):
         if self.action == 'list':
@@ -180,13 +180,21 @@ class PDFSerializer(viewsets.ModelViewSet):
         }
         queryset = models.PDF.objects.all()
         pdf = get_object_or_404(queryset, pk=pk)
-        serializer = serializers.PDFSerializer(pdf, context=serializer_context)
+        serializer = serializers.PDFListSerializer(pdf, context=serializer_context)
+        return Response(serializer.data)
+
+    def list(self,request,*args,**kwargs):
+        queryset = self.get_queryset()
+        serializer_context = {
+            'request': request,
+        }
+        serializer = serializers.PDFListSerializer(queryset,many=True, context=serializer_context)
         return Response(serializer.data)
 
 
 class MCQSerializer(viewsets.ModelViewSet):
     queryset = models.MCQ.objects.all()
-    serializer_class = serializers.MCQListSerializer
+    serializer_class = serializers.MCQSerializer
 
     def get_permissions(self):
         if self.action == 'list':
@@ -225,11 +233,19 @@ class MCQSerializer(viewsets.ModelViewSet):
             return Response(serializer.data)
         else:
             return Response({"message": "MCQ Not Purchased"}, status=HTTP_400_BAD_REQUEST)
+    
+    def list(self,request,*args,**kwargs):
+        queryset = self.get_queryset()
+        serializer_context = {
+            'request': request,
+        }
+        serializer = serializers.MCQListSerializer(queryset,many=True, context=serializer_context)
+        return Response(serializer.data)
 
 
 class SummarySerializer(viewsets.ModelViewSet):
     queryset = models.Summary.objects.all()
-    serializer_class = serializers.SummaryListSerializer
+    serializer_class = serializers.SummarySerializer
 
     def get_permissions(self):
         if self.action == 'list':
@@ -269,11 +285,17 @@ class SummarySerializer(viewsets.ModelViewSet):
         else:
             return Response({"message": "Summary Not Purchased"}, status=HTTP_400_BAD_REQUEST)
 
-
+    def list(self,request,*args,**kwargs):
+        queryset = self.get_queryset()
+        serializer_context = {
+            'request': request,
+        }
+        serializer = serializers.SummaryListSerializer(queryset,many=True, context=serializer_context)
+        return Response(serializer.data)
 
 class SessionSerializer(viewsets.ModelViewSet):
     queryset = models.Session.objects.all()
-    serializer_class = serializers.SessionListSerializer
+    serializer_class = serializers.SessionSerializer
 
     def get_permissions(self):
         if self.action == 'list':
@@ -309,6 +331,14 @@ class SessionSerializer(viewsets.ModelViewSet):
             return Response(serializer.data)
         else:
             return Response({"message": "Session Not Purchased"}, status=HTTP_400_BAD_REQUEST)
+
+    def list(self,request,*args,**kwargs):
+        queryset = self.get_queryset()
+        serializer_context = {
+            'request': request,
+        }
+        serializer = serializers.SessionListSerializer(queryset,many=True, context=serializer_context)
+        return Response(serializer.data)
 
 class UserSubscriptionsSerializer(viewsets.ModelViewSet):
     queryset = models.UserSubscriptions.objects.all()
@@ -349,8 +379,10 @@ class SearchSubscriptionsView(APIView):
             tests = tests.filter(Q(name__icontains = search)| Q(description__icontains = search))
 
         subscriptions = Subscriptions(pdfs, mcqs, summaries, sessions, tests)
-
-        data = serializers.SearchSerializer(subscriptions).data
+        context ={
+            "request":request
+        }
+        data = serializers.SearchSerializer(subscriptions,context=context).data
         return Response(data)
 
 class Notification(ListAPIView):
@@ -371,4 +403,4 @@ class PersonalNotification(ListAPIView):
 
     def get_queryset(self):
         queryset = self.queryset.filter(user=self.request.user)
-        return queryset
+        return queryset.order_by('-timestamp')
