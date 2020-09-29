@@ -75,9 +75,9 @@ class QuizListSerializer(serializers.ModelSerializer):
 			if now>=slot.start_datetime and now<=(slot.start_datetime+obj.duration):
 
 				data={
-					"startTime":slot.start_datetime.strftime("%b %d %Y %H:%M:%S"),
+					"startTime":(slot.start_datetime+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S"),
 					"duration":str(obj.duration),
-					"endTime":(slot.start_datetime+obj.duration).strftime("%b %d %Y %H:%M:%S")
+					"endTime":(slot.start_datetime+obj.duration+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S")
 				}
 				return data
 		
@@ -91,9 +91,9 @@ class QuizListSerializer(serializers.ModelSerializer):
 			if now<slot.start_datetime and now<(slot.start_datetime+obj.duration):
 				print(obj.duration)
 				data={
-					"startTime":slot.start_datetime.strftime("%b %d %Y %H:%M:%S"),
+					"startTime":(slot.start_datetime+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S"),
 					"duration":str(obj.duration),
-					"endTime":(slot.start_datetime+obj.duration).strftime("%b %d %Y %H:%M:%S")
+					"endTime":(slot.start_datetime+obj.duration+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S")
 				}
 				return data
 		
@@ -227,26 +227,26 @@ class QuizDetailSerializer(serializers.ModelSerializer):
 			return None
 
 	def get_starttime(self,obj):
+		now = datetime.now(timezone("Asia/Calcutta"))
 		if obj.live:
 			quizSlot =  QuizSlot.objects.filter(quiz=obj)
-			now = datetime.now(timezone("Asia/Calcutta"))
 			for slot in quizSlot:
 				if now>=slot.start_datetime and now<=(slot.start_datetime+obj.duration):
-					return slot.start_datetime.strftime("%b %d %Y %H:%M:%S")
+					return (slot.start_datetime+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S")
 				elif now<slot.start_datetime and now<(slot.start_datetime+obj.duration):
-					return slot.start_datetime.strftime("%b %d %Y %H:%M:%S")
+					return (slot.start_datetime+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S")
 		return now.strftime("%b %d %Y %H:%M:%S")
 	
 	def get_endtime(self,obj):
+		now = datetime.now(timezone("Asia/Calcutta"))
 		if obj.live:
 			quizSlot =  QuizSlot.objects.filter(quiz=obj)
-			now = datetime.now(timezone("Asia/Calcutta"))
 			for slot in quizSlot:
 				if now>=slot.start_datetime and now<=(slot.start_datetime+obj.duration):
-					return (slot.start_datetime+obj.duration).strftime("%b %d %Y %H:%M:%S")
+					return (slot.start_datetime+obj.duration+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S")
 				elif now<slot.start_datetime and now<(slot.start_datetime+obj.duration):
-					return (slot.start_datetime+obj.duration).strftime("%b %d %Y %H:%M:%S")
-		return (now+obj.duration).strftime("%b %d %Y %H:%M:%S")	
+					return (slot.start_datetime+obj.duration+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S")
+		return (now+obj.duration+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S")	
 class QuizLeaderBoardSerializer(serializers.ModelSerializer):
 	quiztakers_set = serializers.SerializerMethodField()
 

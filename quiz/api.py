@@ -145,6 +145,8 @@ class SaveUsersAnswer(generics.UpdateAPIView):
 	]
 
 	def patch(self, request, *args, **kwargs):
+
+
 		quiztaker_id = request.data['quiztaker']
 		question_id = request.data['question']
 		answer_id = request.data['answer']
@@ -162,6 +164,7 @@ class SaveUsersAnswer(generics.UpdateAPIView):
 		obj = get_object_or_404(UsersAnswer, quiz_taker=quiztaker, question=question)
 		obj.answer = answer
 		obj.save()
+
 
 		return Response(self.get_serializer(obj).data)
 

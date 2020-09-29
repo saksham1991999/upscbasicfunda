@@ -2,11 +2,17 @@ from allauth.account.adapter import get_adapter
 from rest_auth.registration.serializers import RegisterSerializer
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
+from quiz.models import *
 from . import models
-from quiz.serializers import *
-import datetime
 
-from quiz.serializers import QuizMInSerializer
+
+from quiz.serializers import *
+
+import datetime
+from datetime import datetime,timedelta
+from pytz import timezone
+
+
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -378,12 +384,30 @@ class PersonalNotification(serializers.ModelSerializer):
 
 class Personalnotif(serializers.ModelSerializer):
 
-    quiz_set = QuizMInSerializer(many=True)
+#    quiz = QuizMInSerializer(many=True)
+    starttime = serializers.SerializerMethodField()
+    duration = serializers.SerializerMethodField()
     class Meta:
 
         model = models.PersonalNotification
         fields = '__all__'
+    
+    def get_starttime(self,obj):
 
+        now = datetime.now(timezone("Asia/Calcutta"))
+        quiz = Quiz.objects.get(id=obj.quiz_id)
+
+        quizSlot =  QuizSlot.objects.filter(quiz=quiz)
+        for slot in quizSlot:
+            if now>=slot.start_datetime and now<=(slot.start_datetime+quiz.duration):
+                return (slot.start_datetime+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S")
+            elif now<slot.start_datetime and now<(slot.start_datetime+quiz.duration):
+                return (slot.start_datetime+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S")
+
+    def get_duration(self,obj):
+        quiz = Quiz.objects.get(id=obj.quiz_id)
+
+        return (str(quiz.duration))
 
 
 

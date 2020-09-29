@@ -171,6 +171,7 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ),
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
+    'DATETIME_FORMAT': "%b %d %Y %H:%M:%S",
 }
 
 CSRF_COOKIE_NAME = "csrftoken"
