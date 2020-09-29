@@ -385,14 +385,14 @@ class PersonalNotification(serializers.ModelSerializer):
 class Personalnotif(serializers.ModelSerializer):
 
 #    quiz = QuizMInSerializer(many=True)
-    starttime = serializers.SerializerMethodField()
+    quizinfo = serializers.SerializerMethodField()
     duration = serializers.SerializerMethodField()
     class Meta:
 
         model = models.PersonalNotification
         fields = '__all__'
     
-    def get_starttime(self,obj):
+    def get_quizinfo(self,obj):
 
         now = datetime.now(timezone("Asia/Calcutta"))
         quiz = Quiz.objects.get(id=obj.quiz_id)
@@ -400,9 +400,17 @@ class Personalnotif(serializers.ModelSerializer):
         quizSlot =  QuizSlot.objects.filter(quiz=quiz)
         for slot in quizSlot:
             if now>=slot.start_datetime and now<=(slot.start_datetime+quiz.duration):
-                return (slot.start_datetime+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S")
+                data={
+                    "date":(slot.start_datetime+timedelta(hours=5,minutes=30)).strftime("%b %d %Y"),
+                    "time":(slot.start_datetime+timedelta(hours=5,minutes=30)).strftime("%H:%M:%S")
+                }
+                return data
             elif now<slot.start_datetime and now<(slot.start_datetime+quiz.duration):
-                return (slot.start_datetime+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S")
+                data={
+                    "date":(slot.start_datetime+timedelta(hours=5,minutes=30)).strftime("%b %d %Y"),
+                    "time":(slot.start_datetime+timedelta(hours=5,minutes=30)).strftime("%H:%M:%S")
+                }
+                return data
 
     def get_duration(self,obj):
         quiz = Quiz.objects.get(id=obj.quiz_id)
