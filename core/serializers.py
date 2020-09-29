@@ -387,6 +387,8 @@ class Personalnotif(serializers.ModelSerializer):
 #    quiz = QuizMInSerializer(many=True)
     quizinfo = serializers.SerializerMethodField()
     duration = serializers.SerializerMethodField()
+    quizname = serializers.SerializerMethodField()
+    quizslug = serializers.SerializerMethodField()
     class Meta:
 
         model = models.PersonalNotification
@@ -416,6 +418,16 @@ class Personalnotif(serializers.ModelSerializer):
         quiz = Quiz.objects.get(id=obj.quiz_id)
 
         return (str(quiz.duration))
+    
+    def get_quizname(self,obj):
+        quiz = Quiz.objects.get(id=obj.quiz_id)
+
+        return quiz.name
+    def get_quizslug(self,obj):
+        quiz = Quiz.objects.get(id=obj.quiz_id)
+
+        return quiz.slug
+
 
 
 

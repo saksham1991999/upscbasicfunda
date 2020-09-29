@@ -403,4 +403,4 @@ class PersonalNotification(ListAPIView):
 
     def get_queryset(self):
         queryset = self.queryset.filter(user=self.request.user)
-        return queryset
+        return queryset.order_by('-timestamp')
