@@ -8,7 +8,8 @@ from core import models as coremodels
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 import datetime
 from django_filters.rest_framework import DjangoFilterBackend
-
+from datetime import datetime,timedelta
+from pytz import timezone
 from quiz.tasks import EndQuiz
 
 class MyQuizListAPI(generics.ListAPIView):
@@ -113,6 +114,10 @@ class QuizDetailAPI(generics.RetrieveAPIView):
 		last_question = None
 		obj, created = QuizTaker.objects.get_or_create(user=self.request.user, quiz=quiz)
 		if created:
+			now = datetime.now(timezone("Asia/Calcutta"))
+			# current_time = now.strftime("%H:%M:%S")
+			obj.timestart = now
+			obj.save()
 			for question in Question.objects.filter(quiz=quiz):
 				UsersAnswer.objects.create(quiz_taker=obj, question=question)
 			# print(created)
