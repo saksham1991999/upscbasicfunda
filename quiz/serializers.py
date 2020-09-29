@@ -42,6 +42,96 @@ class QuizListSerializer(serializers.ModelSerializer):
 	currentslot = serializers.SerializerMethodField()
 	nextslot = serializers.SerializerMethodField()
 	quizslot_set = QuizSlotSerializer(many=True)
+	rank = serializers.SerializerMethodField(read_only=True)
+	completed = serializers.SerializerMethodField()
+	day_rank= serializers.SerializerMethodField()
+	class Meta:
+		model = Quiz
+		fields = ["id", "name", "description", "image", "slug", "questions_count", "price", "type","duration","live","islive","currentslot","nextslot","quizslot_set",'rank','completed','day_rank']
+		read_only_fields = ["questions_count", "type","live"]
+
+	def get_questions_count(self, obj):
+		return obj.question_set.all().count()
+
+	def get_type(self, obj):
+		return "test"
+
+	def get_islive(self,obj):
+		quizSlot =  QuizSlot.objects.filter(quiz=obj)
+		now = datetime.now(timezone("Asia/Calcutta"))
+		for slot in quizSlot:
+			# print(slot.id)
+			# print(slot.start_datetime)
+			# print("endtime")
+			# print(slot.start_datetime+obj.duration)
+			if now>=slot.start_datetime and now<=(slot.start_datetime+obj.duration):
+				print("here")
+				return True
+		
+		return False
+
+	def get_currentslot(self,obj):
+		data={}
+		quizSlot =  QuizSlot.objects.filter(quiz=obj)
+		now = datetime.now(timezone("Asia/Calcutta"))
+		for slot in quizSlot:
+			if now>=slot.start_datetime and now<=(slot.start_datetime+obj.duration):
+
+				data={
+					"startTime":(slot.start_datetime+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S"),
+					"duration":str(obj.duration),
+					"endTime":(slot.start_datetime+obj.duration+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S")
+				}
+				return data
+		
+		return data
+
+	def get_nextslot(self,obj):
+		data={}
+		quizSlot =  QuizSlot.objects.filter(quiz=obj)
+		now = datetime.now(timezone("Asia/Calcutta"))
+		for slot in quizSlot:
+			if now<slot.start_datetime and now<(slot.start_datetime+obj.duration):
+				print(obj.duration)
+				data={
+					"startTime":(slot.start_datetime+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S"),
+					"duration":str(obj.duration),
+					"endTime":(slot.start_datetime+obj.duration+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S")
+				}
+				return data
+		
+		return data
+	
+	def get_completed(self, obj):
+		try:
+			quiztaker = QuizTaker.objects.get(user=self.context['request'].user, quiz=obj)
+			return quiztaker.completed
+		except QuizTaker.DoesNotExist:
+			return None
+
+	def get_rank(self, obj):
+		try:
+			quiztaker = QuizTaker.objects.get(user=self.context['request'].user, quiz=obj)
+		except:
+			return None
+		aggregate = QuizTaker.objects.filter(score__lt=quiztaker.score).aggregate(ranking=Count('score'))
+		return aggregate['ranking'] + 1
+
+	def get_day_rank(self,obj):
+		try:
+			quiztaker = QuizTaker.objects.get(user=self.context['request'].user, quiz=obj)
+		except:
+			return None
+		return quiztaker.quiz_day_rank
+
+class QuizListSerializer2(serializers.ModelSerializer):
+	questions_count = serializers.SerializerMethodField()
+	type = serializers.SerializerMethodField()
+	islive = serializers.SerializerMethodField()
+	currentslot = serializers.SerializerMethodField()
+	nextslot = serializers.SerializerMethodField()
+	quizslot_set = QuizSlotSerializer(many=True)
+
 	class Meta:
 		model = Quiz
 		fields = ["id", "name", "description", "image", "slug", "questions_count", "price", "type","duration","live","islive","currentslot","nextslot","quizslot_set"]
@@ -98,6 +188,7 @@ class QuizListSerializer(serializers.ModelSerializer):
 				return data
 		
 		return data
+	
 
 class AnswerSerializer(serializers.ModelSerializer):
 	class Meta:

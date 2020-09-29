@@ -319,10 +319,34 @@ class UserSubscriptionsSerializer(serializers.ModelSerializer):
     summaries = SummaryListSerializer(many=True, read_only = True)
     sessions = SessionListSerializer(many=True, read_only = True)
     tests = QuizListSerializer(many=True, read_only = True)
+    # quizinfo = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = models.UserSubscriptions
         fields = ['id', 'user', 'pdfs', 'mcqs', 'summaries', 'sessions', 'tests']
+    
+    # def get_quizinfo(self,obj):
+
+    #     list1=[]
+    #     for i in obj.tests.all():
+
+    #         try:
+    #             quiztaker = QuizTaker.objects.get(user=obj.user,quiz=i)
+    #             data={
+    #                 "quiz id":i.id,
+    #                 "quiz name":i.name,
+    #                 "complete":quiztaker.complete,
+    #                 "quiz_day_rank":quiztaker.quiz_day_rank
+    #             }
+    #             list1.append(data)
+    #         except:
+    #             data={
+    #                 "quiz id":i.id,
+    #                 "quiz name":i.name,
+    #                 "complete":False
+    #             }
+    #             list1.append(data)
+    #     return list1
 
 class SearchSerializer(serializers.Serializer):
 

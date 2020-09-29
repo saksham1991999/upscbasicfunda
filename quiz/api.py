@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from quiz.models import Answer, Question, Quiz, QuizTaker, UsersAnswer
-from quiz.serializers import MyQuizListSerializer, QuizDetailSerializer, QuizListSerializer, QuizResultSerializer, UsersAnswerSerializer, QuizLeaderBoardSerializer
+from quiz.serializers import MyQuizListSerializer, QuizDetailSerializer, QuizListSerializer, QuizResultSerializer, UsersAnswerSerializer, QuizLeaderBoardSerializer,QuizListSerializer2
 from core import models as coremodels
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 import datetime
@@ -32,7 +32,7 @@ class MyQuizListAPI(generics.ListAPIView):
 	
 	def list(self,request,*args,**kwargs):
 		qs = self.get_queryset()
-		serializer = self.serializer_class(qs,many=True)
+		serializer = self.serializer_class(qs,context={'request': self.request},many=True)
 		complete = request.GET.get("complete")
 		data=list()
 		data2=list()
@@ -53,7 +53,7 @@ class MyQuizListAPI(generics.ListAPIView):
 
 
 class QuizListAPI(generics.ListAPIView):
-	serializer_class = QuizListSerializer
+	serializer_class = QuizListSerializer2
 	permission_classes = [
 		permissions.AllowAny,
 	]
@@ -73,6 +73,7 @@ class QuizListAPI(generics.ListAPIView):
 	
 	def list(self,request,*args,**kwargs):
 		qs = self.get_queryset()
+
 		serializer = self.serializer_class(qs,many=True)
 		live = request.GET.get("live")
 		data=list()
