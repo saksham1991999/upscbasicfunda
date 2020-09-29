@@ -25,8 +25,8 @@ SECRET_KEY = '1c37q-d$w#nt9hw5d#detc!kf=n@4bv*+1@&-&3)o2hnxg2jvw'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['upscbasicfunda.herokuapp.com', 'localhost', 'upscbasicfunda.com','upscbasicfunda.in', 'www.upscbasicfunda.com', 'www.upscbasicfunda.in', "15.207.106.26", "api.upscbasicfunda.com", "127.0.0.1","http://53a9679257f8.ngrok.io"]
-
+#ALLOWED_HOSTS = ['upscbasicfunda.herokuapp.com', 'localhost', 'upscbasicfunda.com','upscbasicfunda.in', 'www.upscbasicfunda.com', 'www.upscbasicfunda.in', "15.207.106.26", "api.upscbasicfunda.com", "127.0.0.1","http://53a9679257f8.ngrok.io"]
+ALLOWED_HOSTS =['*']
 
 # Application definition
 
