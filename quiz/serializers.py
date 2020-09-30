@@ -20,7 +20,7 @@ class QuizMInSerializer(serializers.ModelSerializer):
 
 	def get_upcomingslot(self,obj):
 		quizSlot =  QuizSlot.objects.filter(quiz=obj)
-		now = datetime.now(timezone("Asia/Calcutta"))
+		now = datetime.now()
 		for slot in quizSlot:
 			if now>=slot.start_datetime and now<=(slot.start_datetime+obj.duration):
 				data={
@@ -58,7 +58,7 @@ class QuizListSerializer(serializers.ModelSerializer):
 
 	def get_islive(self,obj):
 		quizSlot =  QuizSlot.objects.filter(quiz=obj)
-		now = datetime.now(timezone("Asia/Calcutta"))
+		now = datetime.now()
 		for slot in quizSlot:
 			# print(slot.id)
 			# print(slot.start_datetime)
@@ -73,7 +73,7 @@ class QuizListSerializer(serializers.ModelSerializer):
 	def get_currentslot(self,obj):
 		data={}
 		quizSlot =  QuizSlot.objects.filter(quiz=obj)
-		now = datetime.now(timezone("Asia/Calcutta"))
+		now = datetime.now()
 		for slot in quizSlot:
 			if now>=slot.start_datetime and now<=(slot.start_datetime+obj.duration):
 
@@ -89,7 +89,7 @@ class QuizListSerializer(serializers.ModelSerializer):
 	def get_nextslot(self,obj):
 		data={}
 		quizSlot =  QuizSlot.objects.filter(quiz=obj)
-		now = datetime.now(timezone("Asia/Calcutta"))
+		now = datetime.now()
 		for slot in quizSlot:
 			if now<slot.start_datetime and now<(slot.start_datetime+obj.duration):
 				print(obj.duration)
@@ -145,7 +145,7 @@ class QuizListSerializer2(serializers.ModelSerializer):
 
 	def get_islive(self,obj):
 		quizSlot =  QuizSlot.objects.filter(quiz=obj)
-		now = datetime.now(timezone("Asia/Calcutta"))
+		now = datetime.now()
 		for slot in quizSlot:
 			# print(slot.id)
 			# print(slot.start_datetime)
@@ -160,14 +160,14 @@ class QuizListSerializer2(serializers.ModelSerializer):
 	def get_currentslot(self,obj):
 		data={}
 		quizSlot =  QuizSlot.objects.filter(quiz=obj)
-		now = datetime.now(timezone("Asia/Calcutta"))
+		now = datetime.now()
 		for slot in quizSlot:
 			if now>=slot.start_datetime and now<=(slot.start_datetime+obj.duration):
 
 				data={
-					"startTime":(slot.start_datetime+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S"),
+					"startTime":(slot.start_datetime).strftime("%b %d %Y %H:%M:%S"),
 					"duration":str(obj.duration),
-					"endTime":(slot.start_datetime+obj.duration+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S")
+					"endTime":(slot.start_datetime+obj.duration).strftime("%b %d %Y %H:%M:%S")
 				}
 				return data
 		
@@ -176,14 +176,14 @@ class QuizListSerializer2(serializers.ModelSerializer):
 	def get_nextslot(self,obj):
 		data={}
 		quizSlot =  QuizSlot.objects.filter(quiz=obj)
-		now = datetime.now(timezone("Asia/Calcutta"))
+		now = datetime.now()
 		for slot in quizSlot:
 			if now<slot.start_datetime and now<(slot.start_datetime+obj.duration):
 				print(obj.duration)
 				data={
-					"startTime":(slot.start_datetime+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S"),
+					"startTime":(slot.start_datetime).strftime("%b %d %Y %H:%M:%S"),
 					"duration":str(obj.duration),
-					"endTime":(slot.start_datetime+obj.duration+timedelta(hours=5,minutes=30)).strftime("%b %d %Y %H:%M:%S")
+					"endTime":(slot.start_datetime+obj.duration).strftime("%b %d %Y %H:%M:%S")
 				}
 				return data
 		
@@ -297,6 +297,8 @@ class QuizTakerSerializer(serializers.ModelSerializer):
 			time = obj.date_finished - obj.timestamp
 			return (time.seconds // 3600)
 		else:
+
+
 			return None
 
 class QuizDetailSerializer(serializers.ModelSerializer):
@@ -333,7 +335,7 @@ class QuizDetailSerializer(serializers.ModelSerializer):
 			quiz_taker = QuizTaker.objects.get(user=self.context['request'].user, quiz=obj)
 		except QuizTaker.DoesNotExist:
 			return None
-		return quiz_taker.starttime
+		return (quiz_taker.starttime).strftime("%b %d %Y %H:%M:%S")
 	
 	def get_endtime(self,obj):
 
@@ -344,7 +346,7 @@ class QuizDetailSerializer(serializers.ModelSerializer):
 		if obj.live:
 			quizSlot =  QuizSlot.objects.filter(quiz=obj)
 			for slot in quizSlot:
-				if now>=slot.start_datetime and now<=(slot.start_datetime+obj.duration):
+				if quiz_taker.starttime>=slot.start_datetime and quiz_taker.starttime<=(slot.start_datetime+obj.duration):
 					return (slot.start_datetime+obj.duration).strftime("%b %d %Y %H:%M:%S")
 				elif quiz_taker.starttime<slot.start_datetime and quiz_taker.starttime<(slot.start_datetime+obj.duration):
 					return (slot.start_datetime+obj.duration).strftime("%b %d %Y %H:%M:%S")

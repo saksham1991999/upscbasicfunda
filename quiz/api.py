@@ -114,9 +114,9 @@ class QuizDetailAPI(generics.RetrieveAPIView):
 		last_question = None
 		obj, created = QuizTaker.objects.get_or_create(user=self.request.user, quiz=quiz)
 		if created:
-			now = datetime.now(timezone("Asia/Calcutta"))
+			# now = datetime.now(timezone("Asia/Calcutta"))
 			# current_time = now.strftime("%H:%M:%S")
-			obj.timestart = now
+			# obj.timestart = now
 			obj.save()
 			for question in Question.objects.filter(quiz=quiz):
 				UsersAnswer.objects.create(quiz_taker=obj, question=question)
@@ -155,12 +155,23 @@ class SaveUsersAnswer(generics.UpdateAPIView):
 
 		quiztaker_id = request.data['quiztaker']
 		question_id = request.data['question']
-		answer_id = request.data['answer']
+
 
 		quiztaker = get_object_or_404(QuizTaker, id=quiztaker_id)
 		question = get_object_or_404(Question, id=question_id)
-		answer = get_object_or_404(Answer, id=answer_id)
 
+		# if answer_id is None:
+		# 	answer = get_object_or_404(Answer, id=answer_id)
+		# else:
+		# 	answer = None
+		try:			
+			answer_id = request.data['answer']
+			answer = get_object_or_404(Answer, id=answer_id)
+		except:
+			obj = get_object_or_404(UsersAnswer, quiz_taker=quiztaker, question=question)
+			obj.answer = None 
+			obj.save()
+			return Response(self.get_serializer(obj).data)
 		if quiztaker.completed:
 			return Response({
 				"message": "This quiz is already complete. you can't answer any more questions"},
@@ -203,7 +214,7 @@ class SubmitQuizAPI(generics.GenericAPIView):
 		# 	obj.save()
 
 		quiztaker.completed = True
-		quiztaker.date_finished = datetime.datetime.now()
+		quiztaker.date_finished = datetime.now()
 		correct_answers = 0
 
 		for users_answer in UsersAnswer.objects.filter(quiz_taker=quiztaker):
