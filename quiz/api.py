@@ -3,12 +3,13 @@ from django.shortcuts import get_object_or_404
 from rest_framework import generics, permissions, status
 from rest_framework.response import Response
 from quiz.models import Answer, Question, Quiz, QuizTaker, UsersAnswer
-from quiz.serializers import MyQuizListSerializer, QuizDetailSerializer, QuizListSerializer, QuizResultSerializer, UsersAnswerSerializer, QuizLeaderBoardSerializer
+from quiz.serializers import MyQuizListSerializer, QuizDetailSerializer, QuizListSerializer, QuizResultSerializer, UsersAnswerSerializer, QuizLeaderBoardSerializer,QuizListSerializer2
 from core import models as coremodels
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 import datetime
 from django_filters.rest_framework import DjangoFilterBackend
-
+from datetime import datetime,timedelta
+from pytz import timezone
 from quiz.tasks import EndQuiz
 
 class MyQuizListAPI(generics.ListAPIView):
@@ -32,7 +33,7 @@ class MyQuizListAPI(generics.ListAPIView):
 	
 	def list(self,request,*args,**kwargs):
 		qs = self.get_queryset()
-		serializer = self.serializer_class(qs,many=True)
+		serializer = self.serializer_class(qs,context={'request': self.request},many=True)
 		complete = request.GET.get("complete")
 		data=list()
 		data2=list()
@@ -53,7 +54,7 @@ class MyQuizListAPI(generics.ListAPIView):
 
 
 class QuizListAPI(generics.ListAPIView):
-	serializer_class = QuizListSerializer
+	serializer_class = QuizListSerializer2
 	permission_classes = [
 		permissions.AllowAny,
 	]
@@ -73,6 +74,7 @@ class QuizListAPI(generics.ListAPIView):
 	
 	def list(self,request,*args,**kwargs):
 		qs = self.get_queryset()
+
 		serializer = self.serializer_class(qs,many=True)
 		live = request.GET.get("live")
 		data=list()
@@ -112,6 +114,10 @@ class QuizDetailAPI(generics.RetrieveAPIView):
 		last_question = None
 		obj, created = QuizTaker.objects.get_or_create(user=self.request.user, quiz=quiz)
 		if created:
+			# now = datetime.now(timezone("Asia/Calcutta"))
+			# current_time = now.strftime("%H:%M:%S")
+			# obj.timestart = now
+			obj.save()
 			for question in Question.objects.filter(quiz=quiz):
 				UsersAnswer.objects.create(quiz_taker=obj, question=question)
 			# print(created)
@@ -149,12 +155,23 @@ class SaveUsersAnswer(generics.UpdateAPIView):
 
 		quiztaker_id = request.data['quiztaker']
 		question_id = request.data['question']
-		answer_id = request.data['answer']
+
 
 		quiztaker = get_object_or_404(QuizTaker, id=quiztaker_id)
 		question = get_object_or_404(Question, id=question_id)
-		answer = get_object_or_404(Answer, id=answer_id)
 
+		# if answer_id is None:
+		# 	answer = get_object_or_404(Answer, id=answer_id)
+		# else:
+		# 	answer = None
+		try:			
+			answer_id = request.data['answer']
+			answer = get_object_or_404(Answer, id=answer_id)
+		except:
+			obj = get_object_or_404(UsersAnswer, quiz_taker=quiztaker, question=question)
+			obj.answer = None 
+			obj.save()
+			return Response(self.get_serializer(obj).data)
 		if quiztaker.completed:
 			return Response({
 				"message": "This quiz is already complete. you can't answer any more questions"},
@@ -197,7 +214,7 @@ class SubmitQuizAPI(generics.GenericAPIView):
 		# 	obj.save()
 
 		quiztaker.completed = True
-		quiztaker.date_finished = datetime.datetime.now()
+		quiztaker.date_finished = datetime.now()
 		correct_answers = 0
 
 		for users_answer in UsersAnswer.objects.filter(quiz_taker=quiztaker):
@@ -207,7 +224,7 @@ class SubmitQuizAPI(generics.GenericAPIView):
 
 		quiztaker.score = int(correct_answers / quiztaker.quiz.question_set.count() * 100)
 
-		aggregate = QuizTaker.objects.filter(score__lt=quiztaker.score).aggregate(ranking=Count('score'))
+		aggregate = QuizTaker.objects.filter(score__gt=quiztaker.score).aggregate(ranking=Count('score'))
 		quiztaker.quiz_day_rank = int(aggregate['ranking'] + 1)
 
 		quiztaker.save()

@@ -3,7 +3,7 @@ from django.db import models
 from django.db.models.signals import pre_save,post_save
 from django.dispatch import receiver
 from django.template.defaultfilters import slugify
-from datetime import timedelta
+from datetime import timedelta,datetime
 
 from quiz.tasks import EndQuiz
 
@@ -61,6 +61,7 @@ class QuizTaker(models.Model):
 	date_finished = models.DateTimeField(null=True, blank=True)
 	timestamp = models.DateTimeField(auto_now_add=True)
 	quiz_day_rank = models.PositiveIntegerField(null=True, blank=True)
+	starttime = models.DateTimeField(auto_now_add=True,default=datetime.now())
 
 	def __str__(self):
 		return self.user.email
