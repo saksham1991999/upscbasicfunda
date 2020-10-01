@@ -224,7 +224,7 @@ class SubmitQuizAPI(generics.GenericAPIView):
 
 		quiztaker.score = int(correct_answers / quiztaker.quiz.question_set.count() * 100)
 
-		aggregate = QuizTaker.objects.filter(score__gt=quiztaker.score).aggregate(ranking=Count('score'))
+		aggregate = QuizTaker.objects.filter(quiz_id =quiz.id,score__gt=quiztaker.score).aggregate(ranking=Count('score'))
 		quiztaker.quiz_day_rank = int(aggregate['ranking'] + 1)
 
 		quiztaker.save()
