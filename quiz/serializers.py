@@ -270,7 +270,7 @@ class QuizTakerSerializer(serializers.ModelSerializer):
 
 	def get_rank(self, obj):
 		aggregate = QuizTaker.objects.filter(quiz_id=obj.quiz,score__gt=obj.score).aggregate(ranking=Count('score'))
-		return aggregate['ranking'] + 1
+		return aggregate['ranking'] + 1 
 
 	def get_correct_answers(self, obj):
 		correct_answers = 0
