@@ -9,7 +9,7 @@ from . import models
 from quiz.serializers import *
 
 import datetime
-from datetime import datetime,timedelta
+from datetime import datetime,timedelta,date
 from pytz import timezone
 
 
@@ -271,7 +271,7 @@ class SessionSerializer(serializers.ModelSerializer):
         return "session"
 
     def get_upcoming(self, obj):
-        if obj.date > datetime.date.today():
+        if obj.date > date.today():
             return True
         else:
             return False
@@ -289,7 +289,7 @@ class SessionListSerializer(serializers.ModelSerializer):
         return "session"
 
     def get_upcoming(self, obj):
-        if obj.date > datetime.date.today():
+        if obj.date > date.today():
             return True
         else:
             return False
