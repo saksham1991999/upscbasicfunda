@@ -420,7 +420,7 @@ class Personalnotif(serializers.ModelSerializer):
     
     def get_quizinfo(self,obj):
 
-        now = datetime.now(timezone("Asia/Calcutta"))
+        now = datetime.now()
         quiz = Quiz.objects.get(id=obj.quiz_id)
 
         quizSlot =  QuizSlot.objects.filter(quiz=quiz)
