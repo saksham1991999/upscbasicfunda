@@ -13,7 +13,11 @@ from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from rest_auth.registration.views import SocialLoginView
 from quiz import models as quizmodels
 from cart import models as cartmodels
+from cart import serializers as cartserializer
 from itertools import chain
+import operator
+
+
 
 from django.db.models import Q
 class Subscriptions():
@@ -407,12 +411,13 @@ class PersonalNotification(ListAPIView):
     def get_queryset(self):
         queryset = self.queryset.filter(user=self.request.user)
         queryset2 = models.GeneralNotification.objects.filter(rollOut=True)
-        notif_list = sorted(chain(queryset, queryset2),key=lambda obj: obj.timestamp, reverse=True)
+        notif_list = chain(queryset, queryset2)
         # return queryset.order_by('-timestamp')
-        return notif_list
+        ordered = sorted(notif_list, key=operator.attrgetter('-timestamp'))
+        return ordered
 
 class PromocodeAPI(CreateAPIView):
-    queryset = models.UserCode.objects.all()
+    queryset = models.PromoCode.objects.all()
     serializer_class = serializers.PromoUser
     permission_classes = [permissions.IsAuthenticated]
 
@@ -425,10 +430,12 @@ class PromocodeAPI(CreateAPIView):
         obj,created = models.UserCode.get_or_create(user=request.user,code=code)
 
         if created:
-            cart = cartmodels.UserCart.get(id=request.data["cart_id"])
+            cart = cartmodels.UserCart.objects.get(id=request.data["cart_id"])
             cart.promocode = code
             cart.save()
-            return Response("Code Added Successfully")
+            cart = cartmodels.UserCart.objects.get(id=request.data["cart_id"])
+            serializer = cartserializer.UserCartSerializer(cart)
+            return Response(serializer.data)
         
         if obj:
             return Response("User has alreadys used the promo code")

@@ -455,7 +455,7 @@ class Personalnotif(serializers.ModelSerializer):
 class PromoUser(serializers.ModelSerializer):
 
     class Meta:
-        models = models.UserCode
+        model = models.UserCode
         fields = "__all__"
 
 

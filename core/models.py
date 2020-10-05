@@ -156,7 +156,7 @@ class GeneralNotification(models.Model):
     description = models.TextField()
     link = models.URLField(default='',blank=True)
     rollOut = models.BooleanField(default=True)
-    timeStamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
     
 
 
@@ -198,7 +198,7 @@ class UserCode(models.Model):
 
     class Meta:
         verbose_name_plural = 'Promocodes Used (User)'
-        
+
 @receiver(post_save, sender=User)
 def my_callback(sender, instance, *args, **kwargs):
     user_subscription = UserSubscriptions.objects.get_or_create(user=instance)
