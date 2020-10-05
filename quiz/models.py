@@ -61,7 +61,7 @@ class QuizTaker(models.Model):
 	date_finished = models.DateTimeField(null=True, blank=True)
 	timestamp = models.DateTimeField(auto_now_add=True)
 	quiz_day_rank = models.PositiveIntegerField(null=True, blank=True)
-	starttime = models.DateTimeField(auto_now_add=True,default=datetime.now())
+	starttime = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
 		return self.user.email

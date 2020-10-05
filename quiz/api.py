@@ -70,7 +70,7 @@ class QuizListAPI(generics.ListAPIView):
 				Q(description__icontains=query)
 			).distinct()
 
-		return queryset
+		return queryset.order_by("-id")
 	
 	def list(self,request,*args,**kwargs):
 		qs = self.get_queryset()

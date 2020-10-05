@@ -452,6 +452,12 @@ class Personalnotif(serializers.ModelSerializer):
 
         return quiz.slug
 
+class PromoUser(serializers.ModelSerializer):
+
+    class Meta:
+        models = models.UserCode
+        fields = "__all__"
+
 
 
 
