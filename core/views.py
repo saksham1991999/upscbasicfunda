@@ -427,7 +427,7 @@ class PromocodeAPI(CreateAPIView):
         except ObjectDoesNotExist:
             return Response("Invalid Code. Please Enter A Valid Code")
         
-        obj,created = models.UserCode.get_or_create(user=request.user,code=code)
+        obj,created = models.UserCode.objects.get_or_create(user=request.user,code=code)
 
         if created:
             cart = cartmodels.UserCart.objects.get(id=request.data["cart_id"])
