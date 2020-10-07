@@ -18,6 +18,7 @@ class Quiz(models.Model):
 	live = models.BooleanField(default=False)
 	roll_out = models.BooleanField(default=False)
 	rollout_date=models.DateTimeField(blank=True,null=True)
+	answerkey=models.FileField(blank=True,null=True)
 
 	class Meta:
 		ordering = ['timestamp',]

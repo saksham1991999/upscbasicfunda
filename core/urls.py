@@ -10,6 +10,8 @@ urlpatterns = [
 	path("general-notification/",views.Notification.as_view()),
 	path("personal-notification/",views.PersonalNotification.as_view()),
 	path("promo-code/",views.PromocodeAPI.as_view()),
+	path("promo-code-view/",views.PromoCodeViewAPI.as_view()),
+	path("testing-mail/",views.DemoAPI.as_view()),
 ]
 
 router = DefaultRouter()

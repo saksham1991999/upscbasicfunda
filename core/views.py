@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.generics import RetrieveAPIView, ListAPIView,CreateAPIView
 from rest_framework.decorators import api_view, schema
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail.message import EmailMessage
 
 from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
@@ -440,4 +441,39 @@ class PromocodeAPI(CreateAPIView):
         if obj:
             return Response("User has alreadys used the promo code")
 
+class PromoCodeViewAPI(ListAPIView):
+    queryset = models.PromoCode.objects.all()
+    serializer_class = serializers.PromoCode
+    #permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = self.queryset.filter(active=True)
+
+        return queryset.order_by('-timestamp')
+
+class DemoAPI(CreateAPIView):
+    queryset=None
+    serializer_class=None
+
+    def create(self,request,*args,**kwargs):
+        
+        quiz=quizmodels.Quiz.objects.get(id=26)
+# Build message
+        email = EmailMessage(subject='Coffeehouse sales report',
+            body='Attached is sales report....',
+            from_email='testingserver.12307@gmail.com',
+            to=['yashch1998@gmail.com'])
+
+# Open PDF file
+        path= quiz.answerkey
+        attachment = open(path, 'rb')
+
+# Attach PDF file
+        email.attach(path,attachment.read(),'application/pdf')
+
+# Send message with built-in send() method
+        email.send()
+
+        return Response({"path":path},status=200)
+    
 
