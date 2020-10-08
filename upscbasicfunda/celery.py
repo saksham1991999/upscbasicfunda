@@ -13,6 +13,12 @@ app = Celery('upscbasicfunda')
 #   should have a `CELERY_` prefix.
 app.config_from_object('django.conf:settings', namespace='CELERY')
 
+app.conf.schedule_beat={
+    'every-1-minute':{
+        'task':'quiz.tasks.auto_sumbit_task',
+        'schedule':60,
+    }
+}
 # Load task modules from all registered Django app configs.
 app.autodiscover_tasks()
 

@@ -76,7 +76,10 @@ class UsersAnswer(models.Model):
 
 	def __str__(self):
 		return self.question.label
-
+class Tester(models.Model):
+	name = models.CharField(max_length=10)
+	timestamp = models.DateTimeField(auto_now_add=True)
+	
 
 @receiver(pre_save, sender=Quiz)
 def slugify_name(sender, instance, *args, **kwargs):

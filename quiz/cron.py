@@ -1,13 +1,14 @@
 from .models import *
 import datetime
 
-def ~():
+def auto_sumbit_task():
         
         quiztakers = QuizTaker.objects.filter(completed=False)
 
-        for quiztaker in quiztakers:
-            if quiztaker.quiz.live==False:
-                if datetime.datetime.now()>(quiztaker.starttime+quiztaker.quiz.duration):
+        for i in quiztakers:
+            if i.quiz.live==False:
+                if datetime.datetime.now()>i.starttime+i.quiz.duration):
+                    quiztaker = QuizTaker.objects.get(id=i.id)
                     quiztaker.complete=True
                     quiztaker.date_finished=datetime.now()
                     correct_answers = 0
@@ -19,21 +20,25 @@ def ~():
 
                     quiztaker.score = int(correct_answers / quiztaker.quiz.question_set.count() * 100)
 
-                    aggregate = models.QuizTaker.objects.filter(score__gt=quiztaker.score).aggregate(ranking=Count('score'))
+                    aggregate = models.QuizTaker.objects.filter(quiz_id =quiztaker.quiz.id,score__gt=quiztaker.score).aggregate(ranking=Count('score'))
                     quiztaker.quiz_day_rank = int(aggregate['ranking'] + 1)
                     quiztaker.save()
 
-            if quiztaker.quiz.live == True:
-                slots = QuizSlot.objects.filter(quiz=quiztaker.quiz)
+            if i.quiz.live == True:
+                slots = QuizSlot.objects.filter(quiz=i.quiz)
                 temp=False
                 slot=None
-                for i in slots:
-                    if i.start_datetime>=datetime.datetime.now():
+                lastslot=slots[0]
+                for j in slots:
+                    if j.start_datetime>lastslot.start_datetime:
+                        lastslot=j
+                    if j.start_datetime>=datetime.datetime.now():
                         temp=True
-                        slot=i
+                        slot=j
                         break 
                 if temp == False:
-                    if datetime.datetime.now()>(quiztaker.starttime+quiztaker.quiz.duration):
+                    if datetime.datetime.now()>(lastslot.start_datetime+quiztaker.quiz.duration):
+                        quiztaker = QuizTaker.objects.get(id=i.id)
                         quiztaker.complete=True
                         quiztaker.date_finished=datetime.now()
                         correct_answers = 0
@@ -45,11 +50,12 @@ def ~():
 
                         quiztaker.score = int(correct_answers / quiztaker.quiz.question_set.count() * 100)
 
-                        aggregate = models.QuizTaker.objects.filter(score__gt=quiztaker.score).aggregate(ranking=Count('score'))
+                        aggregate = models.QuizTaker.objects.filter(quiz_id =quiztaker.quiz.id,score__gt=quiztaker.score).aggregate(ranking=Count('score'))
                         quiztaker.quiz_day_rank = int(aggregate['ranking'] + 1)
                         quiztaker.save()
                 else:
-                    if datetime.datetime.now()>(slot.start_datetime+quiztaker.quiz.duration):
+                    if datetime.datetime.now()>(slot.start_datetime+i.quiz.duration):
+                        quiztaker = QuizTaker.objects.get(id=i.id)
                         quiztaker.complete=True
                         quiztaker.date_finished=datetime.now()
                         correct_answers = 0
@@ -61,6 +67,9 @@ def ~():
 
                         quiztaker.score = int(correct_answers / quiztaker.quiz.question_set.count() * 100)
 
-                        aggregate = models.QuizTaker.objects.filter(score__gt=quiztaker.score).aggregate(ranking=Count('score'))
+                        aggregate = models.QuizTaker.objects.filter(quiz_id =quiztaker.quiz.id,score__gt=quiztaker.score).aggregate(ranking=Count('score'))
                         quiztaker.quiz_day_rank = int(aggregate['ranking'] + 1)
                         quiztaker.save()
+
+def temp_task():
+    Tester.objects.create(name="testing")
