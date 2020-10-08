@@ -80,3 +80,5 @@ admin.site.register(models.UserSubscriptions)
 
 admin.site.register(models.GeneralNotification)
 admin.site.register(models.PersonalNotification)
+admin.site.register(models.PromoCode)
+admin.site.register(models.UserCode)

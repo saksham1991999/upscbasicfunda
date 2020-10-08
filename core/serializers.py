@@ -4,7 +4,10 @@ from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from quiz.models import *
 from . import models
-
+from django.contrib.auth.forms import PasswordResetForm
+from django.conf import settings
+from django.utils.translation import gettext as _
+from dj_rest_auth.serializers import PasswordResetSerializer
 
 from quiz.serializers import *
 
@@ -19,6 +22,22 @@ class UserSerializer(serializers.ModelSerializer):
         model = models.User
         fields = ('email', 'username', 'password', 'mobile', 'profile_pic', 'first_name', 'last_name')
 
+
+class CustomPasswordResetSerializer(PasswordResetSerializer):
+    def save(self):
+        request = self.context.get('request')
+        # Set some values to trigger the send_email method.
+        opts = {
+            'use_https': request.is_secure(),
+            'from_email': getattr(settings, 'DEFAULT_FROM_EMAIL'),
+            'request': request,
+            # here I have set my desired template to be used
+            # don't forget to add your templates directory in settings to be found
+            'email_template_name': 'registration/password_reset_email.html'
+        }
+
+        opts.update(self.get_email_options())
+        self.reset_form.save(**opts)
 
 class CustomRegisterSerializer(RegisterSerializer):
     mobile = serializers.CharField(allow_blank = True, allow_null=True)
@@ -297,7 +316,7 @@ class SessionListSerializer(serializers.ModelSerializer):
     def get_file(self,obj):
 
         if obj.price<1:
-            file =self.context['request'].build_absolute_uri(obj.file.url)
+            file =self.context['request'].build_absolute_uri(obj.video.url)
             # return obj.file.url
             return file
         
@@ -305,7 +324,7 @@ class SessionListSerializer(serializers.ModelSerializer):
         if user.id is not None:
             sub = models.UserSubscriptions.objects.get(user = user)
             if obj in sub.sessions.all():
-                file =self.context['request'].build_absolute_uri(obj.file.url)
+                file =self.context['request'].build_absolute_uri(obj.video.url)
                 # return obj.file.url
                 return file
         else:
@@ -420,7 +439,7 @@ class Personalnotif(serializers.ModelSerializer):
     
     def get_quizinfo(self,obj):
 
-        now = datetime.now(timezone("Asia/Calcutta"))
+        now = datetime.now()
         quiz = Quiz.objects.get(id=obj.quiz_id)
 
         quizSlot =  QuizSlot.objects.filter(quiz=quiz)
@@ -451,6 +470,18 @@ class Personalnotif(serializers.ModelSerializer):
         quiz = Quiz.objects.get(id=obj.quiz_id)
 
         return quiz.slug
+
+class PromoUser(serializers.ModelSerializer):
+
+    class Meta:
+        model = models.UserCode
+        fields = "__all__"
+
+class PromoCode(serializers.ModelSerializer):
+
+    class Meta:
+        model=models.PromoCode
+        fields='__all__'
 
 
 

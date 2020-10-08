@@ -156,7 +156,7 @@ class GeneralNotification(models.Model):
     description = models.TextField()
     link = models.URLField(default='',blank=True)
     rollOut = models.BooleanField(default=True)
-    timeStamp = models.DateTimeField(auto_now_add=True)
+    timestamp = models.DateTimeField(auto_now_add=True)
     
 
 
@@ -181,13 +181,23 @@ class PersonalNotification(models.Model):
 
 class PromoCode(models.Model):
 
-    code = models.CharField(max_length = 32)
+    code = models.CharField(max_length = 6)
     percent = models.PositiveSmallIntegerField()
     description = models.TextField(blank=True)
     timestamp = models.DateTimeField(auto_now_add= True)
+    active = models.BooleanField(default=False)
 
     class Meta:
         verbose_name_plural = 'Promo Codes'
+
+class UserCode(models.Model):
+
+    user = models.ForeignKey('core.User', on_delete=models.PROTECT)
+    code = models.ForeignKey('core.PromoCode',on_delete=models.PROTECT)
+    timestamp = models.DateTimeField(auto_now_add= True)
+
+    class Meta:
+        verbose_name_plural = 'Promocodes Used (User)'
 
 @receiver(post_save, sender=User)
 def my_callback(sender, instance, *args, **kwargs):

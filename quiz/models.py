@@ -17,6 +17,8 @@ class Quiz(models.Model):
 	duration = models.DurationField(default=timedelta(hours=2))
 	live = models.BooleanField(default=False)
 	roll_out = models.BooleanField(default=False)
+	rollout_date=models.DateTimeField(blank=True,null=True)
+	answerkey=models.FileField(blank=True,null=True)
 
 	class Meta:
 		ordering = ['timestamp',]
@@ -61,7 +63,7 @@ class QuizTaker(models.Model):
 	date_finished = models.DateTimeField(null=True, blank=True)
 	timestamp = models.DateTimeField(auto_now_add=True)
 	quiz_day_rank = models.PositiveIntegerField(null=True, blank=True)
-	starttime = models.DateTimeField(auto_now_add=True,default=datetime.now())
+	starttime = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
 		return self.user.email
@@ -74,7 +76,10 @@ class UsersAnswer(models.Model):
 
 	def __str__(self):
 		return self.question.label
-
+class Tester(models.Model):
+	name = models.CharField(max_length=10)
+	timestamp = models.DateTimeField(auto_now_add=True)
+	
 
 @receiver(pre_save, sender=Quiz)
 def slugify_name(sender, instance, *args, **kwargs):

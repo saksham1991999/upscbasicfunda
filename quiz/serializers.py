@@ -16,7 +16,7 @@ class QuizMInSerializer(serializers.ModelSerializer):
 	upcomingslot = serializers.SerializerMethodField()
 	class Meta:
 		model = Quiz
-		fields =["id","slug","name","duration","quizslot_set"]
+		fields =["id","slug","name","duration","quizslot_set","rollout_date"]
 
 	def get_upcomingslot(self,obj):
 		quizSlot =  QuizSlot.objects.filter(quiz=obj)
@@ -47,7 +47,7 @@ class QuizListSerializer(serializers.ModelSerializer):
 	day_rank= serializers.SerializerMethodField()
 	class Meta:
 		model = Quiz
-		fields = ["id", "name", "description", "image", "slug", "questions_count", "price", "type","duration","live","islive","currentslot","nextslot","quizslot_set",'rank','completed','day_rank']
+		fields = ["id", "name", "description", "image", "slug", "questions_count", "price", "type","duration","live","islive","currentslot","nextslot","quizslot_set",'rank','completed','day_rank',"rollout_date"]
 		read_only_fields = ["questions_count", "type","live"]
 
 	def get_questions_count(self, obj):
@@ -134,7 +134,7 @@ class QuizListSerializer2(serializers.ModelSerializer):
 
 	class Meta:
 		model = Quiz
-		fields = ["id", "name", "description", "image", "slug", "questions_count", "price", "type","duration","live","islive","currentslot","nextslot","quizslot_set"]
+		fields = ["id", "name", "description", "image", "slug", "questions_count", "price", "type","duration","live","islive","currentslot","nextslot","quizslot_set","rollout_date"]
 		read_only_fields = ["questions_count", "type","live"]
 
 	def get_questions_count(self, obj):
@@ -309,7 +309,7 @@ class QuizDetailSerializer(serializers.ModelSerializer):
 	endtime = serializers.SerializerMethodField()
 	class Meta:
 		model = Quiz
-		fields = "__all__"
+		fields = ["id","name","description", "image", "slug","price","duration","live","roll_out","rollout_date","quizslot_set","quiztakers_set","question_set","starttime","endtime"]
 
 	def get_quiztakers_set(self, obj):
 		try:
@@ -356,7 +356,7 @@ class QuizLeaderBoardSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Quiz
-		fields = "__all__"
+		fields = ["id","name","description", "image", "slug","price","duration","live","roll_out","rollout_date","quiztakers_set"]
 
 	def get_quiztakers_set(self, obj):
 		try:
@@ -372,7 +372,7 @@ class QuizResultSerializer(serializers.ModelSerializer):
 
 	class Meta:
 		model = Quiz
-		fields = "__all__"
+		fields = ["id","name","description", "image", "slug","price","duration","live","roll_out","rollout_date","quiztaker_set","question_set"]
 
 	def get_quiztaker_set(self, obj):
 		try:

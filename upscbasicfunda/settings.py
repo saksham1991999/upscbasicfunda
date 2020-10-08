@@ -161,6 +161,10 @@ STATICFILES_ROOT = os.path.join(BASE_DIR, 'static/')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+TEMPLATE_DIRS = (
+    os.path.join(BASE_DIR, 'templates'),
+)
+
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
@@ -188,7 +192,8 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'core.serializers.UserSerializer',
-    'TOKEN_SERIALIZER': 'core.serializers.TokenSerializer'
+    'TOKEN_SERIALIZER': 'core.serializers.TokenSerializer',
+    'PASSWORD_RESET_SERIALIZER':'PasswordResetSerializer',
 }
 
 REST_AUTH_REGISTER_SERIALIZERS = {
@@ -210,6 +215,7 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_HOST_USER = 'upscbasicfunda@gmail.com'
 EMAIL_HOST_PASSWORD = 'upscupscupsc_1234'
+DEFAULT_FROM_EMAIL = 'UpscBasicFunda Team <noreply@upscbasicfunda.com>'
 
 # CELERY STUFF
 CELERY_BROKER_URL = 'redis://localhost:6379'

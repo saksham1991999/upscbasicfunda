@@ -11,6 +11,7 @@ from django_filters.rest_framework import DjangoFilterBackend
 from datetime import datetime,timedelta
 from pytz import timezone
 from quiz.tasks import EndQuiz
+from django.core.mail import EmailMessage
 
 class MyQuizListAPI(generics.ListAPIView):
 	permission_classes = [
@@ -70,7 +71,7 @@ class QuizListAPI(generics.ListAPIView):
 				Q(description__icontains=query)
 			).distinct()
 
-		return queryset
+		return queryset.order_by("-id")
 	
 	def list(self,request,*args,**kwargs):
 		qs = self.get_queryset()
@@ -228,6 +229,15 @@ class SubmitQuizAPI(generics.GenericAPIView):
 		quiztaker.quiz_day_rank = int(aggregate['ranking'] + 1)
 
 		quiztaker.save()
+
+		email = EmailMessage(subject='Answer Key',body='The Answer key is attached along with this mail',from_email='testingserver.12307@gmail.com',to=[request.user.email,])
+
+		path= quiz.answerkey.path
+		attachment = open(path, 'rb')
+
+		email.attach(path,attachment.read(),'application/pdf')
+
+		email.send()
 		return Response(self.get_serializer(quiz).data)
 
 

@@ -14,10 +14,11 @@ class UserCartSerializer(serializers.ModelSerializer):
     tests = QuizListSerializer(many=True, read_only = True)
     order_id = serializers.SerializerMethodField(read_only = True)
     total_amount = serializers.SerializerMethodField(read_only = True)
+    final_amount = serializers.SerializerMethodField(read_only = True)
 
     class Meta:
         model = models.UserCart
-        fields = ['id', 'user', 'pdfs', 'mcqs', 'summaries', 'sessions', 'start_date', 'ordered_date', 'ordered', 'tests', 'order_id', 'total_amount']
+        fields = ['id', 'user', 'pdfs', 'mcqs', 'summaries', 'sessions', 'start_date', 'ordered_date', 'ordered', 'tests','promocode', 'order_id', 'total_amount','final_amount']
 
     def get_order_id(self, obj):
         amount = 0
@@ -31,6 +32,9 @@ class UserCartSerializer(serializers.ModelSerializer):
             amount += session.price
         for test in obj.tests.all():
             amount += test.price
+        if obj.promocode is not None:
+            discount = (obj.promocode_percent * amount)/100
+            amount=amount-discount
         data = {
             "amount" : amount*100,
             "currency" : 'INR',
@@ -56,6 +60,23 @@ class UserCartSerializer(serializers.ModelSerializer):
             amount += session.price
         for test in obj.tests.all():
             amount += test.price
+        return amount
+    
+    def get_final_amount(self,obj):
+        amount = 0
+        for pdf in obj.pdfs.all():
+            amount += pdf.price
+        for mcq in obj.mcqs.all():
+            amount += mcq.price
+        for summary in obj.summaries.all():
+            amount += summary.price
+        for session in obj.sessions.all():
+            amount += session.price
+        for test in obj.tests.all():
+            amount += test.price
+        if obj.promocode is not None:
+            discount = (obj.promocode_percent * amount)/100
+            return (amount-discount)
         return amount
 
 class UserBookmarkSerializer(serializers.ModelSerializer):

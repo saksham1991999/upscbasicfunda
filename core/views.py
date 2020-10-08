@@ -4,13 +4,21 @@ from rest_framework import viewsets, permissions
 from rest_framework.response import Response
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 from rest_framework.views import APIView
-from rest_framework.generics import RetrieveAPIView, ListAPIView
+from rest_framework.generics import RetrieveAPIView, ListAPIView,CreateAPIView
 from rest_framework.decorators import api_view, schema
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.mail.message import EmailMessage
 
 from allauth.socialaccount.providers.facebook.views import FacebookOAuth2Adapter
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from rest_auth.registration.views import SocialLoginView
 from quiz import models as quizmodels
+from cart import models as cartmodels
+from cart import serializers as cartserializer
+from itertools import chain
+import operator
+
+
 
 from django.db.models import Q
 class Subscriptions():
@@ -68,7 +76,7 @@ class ContactUsViewSet(viewsets.ModelViewSet):
     #     return [permission() for permission in permission_classes]
 
 class FeedbackViewSet(viewsets.ModelViewSet):
-    queryset = models.Feedback.objects.all()
+    queryset = models.Feedback.objects.all().order_by("-id")
     serializer_class = serializers.FeedbackSerializer
 
     def get_permissions(self):
@@ -79,7 +87,7 @@ class FeedbackViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 class FAQViewSet(viewsets.ModelViewSet):
-    queryset = models.FAQ.objects.all()
+    queryset = models.FAQ.objects.all().order_by("-id")
     serializer_class = serializers.FAQSerializer
 
     def get_permissions(self):
@@ -90,7 +98,7 @@ class FAQViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 class ArticleViewSet(viewsets.ModelViewSet):
-    queryset = models.Article.objects.all()
+    queryset = models.Article.objects.all().order_by("-id")
     serializer_class = serializers.ArticleSerializer
 
     def get_permissions(self):
@@ -101,7 +109,7 @@ class ArticleViewSet(viewsets.ModelViewSet):
         return [permission() for permission in permission_classes]
 
 class NewsViewSet(viewsets.ModelViewSet):
-    queryset = models.News.objects.all()
+    queryset = models.News.objects.all().order_by("-id")
     serializer_class = serializers.NewsSerializer
 
     def get_permissions(self):
@@ -172,7 +180,7 @@ class PDFSerializer(viewsets.ModelViewSet):
         search = self.request.query_params.get('search', None)
         if search is not None:
             queryset = queryset.filter(name__icontains = search)
-        return queryset
+        return queryset.order_by("-id")
 
     def retrieve(self, request, pk=None, *args, **kwargs):
         serializer_context = {
@@ -219,7 +227,7 @@ class MCQSerializer(viewsets.ModelViewSet):
         search = self.request.query_params.get('search', None)
         if search is not None:
             queryset = queryset.filter(name__icontains = search)
-        return queryset
+        return queryset.order_by("-id")
 
     def retrieve(self, request, pk=None, *args, **kwargs):
         serializer_context = {
@@ -270,7 +278,7 @@ class SummarySerializer(viewsets.ModelViewSet):
         search = self.request.query_params.get('search', None)
         if search is not None:
             queryset = queryset.filter(name__icontains = search)
-        return queryset
+        return queryset.order_by("-id")
 
     def retrieve(self, request, pk=None, *args, **kwargs):
         serializer_context = {
@@ -393,7 +401,7 @@ class Notification(ListAPIView):
 
     def get_queryset(self):
         queryset = self.queryset.filter(rollOut=True)
-        return queryset
+        return queryset.order_by('-timestamp')
 
 class PersonalNotification(ListAPIView):
 
@@ -403,4 +411,69 @@ class PersonalNotification(ListAPIView):
 
     def get_queryset(self):
         queryset = self.queryset.filter(user=self.request.user)
+        queryset2 = models.GeneralNotification.objects.filter(rollOut=True)
+        notif_list = chain(queryset, queryset2)
+        # return queryset.order_by('-timestamp')
+        ordered = sorted(notif_list, key=operator.attrgetter('-timestamp'))
+        return ordered
+
+class PromocodeAPI(CreateAPIView):
+    queryset = models.PromoCode.objects.all()
+    serializer_class = serializers.PromoUser
+    permission_classes = [permissions.IsAuthenticated]
+
+    def create(self,request,*args,**kwargs):
+        try:
+            code = self.queryset.get(code=request.data["code"],active=True)
+        except ObjectDoesNotExist:
+            return Response("Invalid Code. Please Enter A Valid Code")
+        
+        obj,created = models.UserCode.objects.get_or_create(user=request.user,code=code)
+
+        if created:
+            cart = cartmodels.UserCart.objects.get(id=request.data["cart_id"])
+            cart.promocode = code
+            cart.save()
+            cart = cartmodels.UserCart.objects.get(id=request.data["cart_id"])
+            serializer = cartserializer.UserCartSerializer(cart)
+            return Response(serializer.data)
+        
+        if obj:
+            return Response("User has alreadys used the promo code")
+
+class PromoCodeViewAPI(ListAPIView):
+    queryset = models.PromoCode.objects.all()
+    serializer_class = serializers.PromoCode
+    #permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        queryset = self.queryset.filter(active=True)
+
         return queryset.order_by('-timestamp')
+
+class DemoAPI(CreateAPIView):
+    queryset=None
+    serializer_class=None
+
+    def create(self,request,*args,**kwargs):
+        
+        quiz=quizmodels.Quiz.objects.get(id=26)
+# Build message
+        email = EmailMessage(subject='Coffeehouse sales report',
+            body='Attached is sales report....',
+            from_email='testingserver.12307@gmail.com',
+            to=['yashch1998@gmail.com'])
+
+# Open PDF file
+        path= quiz.answerkey
+        attachment = open(path, 'rb')
+
+# Attach PDF file
+        email.attach(path,attachment.read(),'application/pdf')
+
+# Send message with built-in send() method
+        email.send()
+
+        return Response({"path":path},status=200)
+    
+
