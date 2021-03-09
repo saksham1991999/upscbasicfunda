@@ -5,7 +5,7 @@ from django.dispatch import receiver
 from django.template.defaultfilters import slugify
 from datetime import timedelta,datetime
 
-from quiz.tasks import EndQuiz
+#from quiz.tasks import EndQuiz
 
 class Quiz(models.Model):
 	name = models.CharField(max_length=100)
@@ -88,11 +88,17 @@ def slugify_name(sender, instance, *args, **kwargs):
 # @receiver(post_save,sender=QuizTaker)
 # def answering(sender,instance,created,*args,**kwargs):
 # 	if created:
-# 		print(instance)
-# 		print("ok")
-# 		print(sender.quiz)
-# 		EndQuiz(instance)
+# 		pass
+# 	else:
+# 		if instance.date_finished is not None:
+# 			print("herehere")
+# 			instance.completed = True
 
+@receiver(pre_save,sender=QuizTaker)
+def answering(sender,instance,*args,**kwargs):
+
+	if instance.date_finished is not None:
+		instance.completed = True
 
 # post_save.connect(answering, sender=QuizTaker)
 

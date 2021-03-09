@@ -15,10 +15,11 @@ class UserCartSerializer(serializers.ModelSerializer):
     order_id = serializers.SerializerMethodField(read_only = True)
     total_amount = serializers.SerializerMethodField(read_only = True)
     final_amount = serializers.SerializerMethodField(read_only = True)
+    promo_code = serializers.SerializerMethodField(read_only = True)
 
     class Meta:
         model = models.UserCart
-        fields = ['id', 'user', 'pdfs', 'mcqs', 'summaries', 'sessions', 'start_date', 'ordered_date', 'ordered', 'tests','promocode', 'order_id', 'total_amount','final_amount']
+        fields = ['id', 'user', 'pdfs', 'mcqs', 'summaries', 'sessions', 'start_date', 'ordered_date', 'ordered', 'tests','promocode', 'order_id', 'total_amount','final_amount','promo_code']
 
     def get_order_id(self, obj):
         amount = 0
@@ -33,7 +34,7 @@ class UserCartSerializer(serializers.ModelSerializer):
         for test in obj.tests.all():
             amount += test.price
         if obj.promocode is not None:
-            discount = (obj.promocode_percent * amount)/100
+            discount = (obj.promocode.percent * amount)/100
             amount=amount-discount
         data = {
             "amount" : amount*100,
@@ -75,9 +76,14 @@ class UserCartSerializer(serializers.ModelSerializer):
         for test in obj.tests.all():
             amount += test.price
         if obj.promocode is not None:
-            discount = (obj.promocode_percent * amount)/100
+            discount = (obj.promocode.percent * amount)/100
             return (amount-discount)
         return amount
+        
+    def get_promo_code(self,obj):
+        if obj.promocode is not None:
+            return obj.promocode.code
+        return None
 
 class UserBookmarkSerializer(serializers.ModelSerializer):
     user = UserSerializer(many=False, read_only = True)

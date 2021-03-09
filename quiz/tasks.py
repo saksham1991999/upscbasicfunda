@@ -1,14 +1,20 @@
 # Create your tasks here
 from __future__ import absolute_import, unicode_literals
-
+from celery.task.schedules import crontab
+from celery.decorators import periodic_task
 from celery import shared_task
 # from demoapp.models import Widget
-from quiz import models
-from datetime import datetime
+#from quiz import models
 from django.db.models import Q, Count
+from .models import *
+import time 
+import datetime
 
-from time 
-
+#@periodic_task(
+#    run_every=(crontab(minute='*/1')),
+#    name="auto_sumbit_task",
+#    ignore_result=True
+#)
 @shared_task
 def auto_sumbit_task():
         
@@ -16,20 +22,20 @@ def auto_sumbit_task():
 
         for i in quiztakers:
             if i.quiz.live==False:
-                if datetime.datetime.now()>i.starttime+i.quiz.duration):
+                if datetime.datetime.now()>(i.starttime+i.quiz.duration):
                     quiztaker = QuizTaker.objects.get(id=i.id)
-                    quiztaker.complete=True
-                    quiztaker.date_finished=datetime.now()
+                    quiztaker.complete=1
+                    quiztaker.date_finished=datetime.datetime.now()
                     correct_answers = 0
 
-                    for users_answer in models.UsersAnswer.objects.filter(quiz_taker=quiztaker):
-                        answer = models.Answer.objects.get(question=users_answer.question, is_correct=True)
+                    for users_answer in UsersAnswer.objects.filter(quiz_taker=quiztaker):
+                        answer = Answer.objects.get(question=users_answer.question, is_correct=True)
                         if users_answer.answer == answer:
                             correct_answers += 1
 
                     quiztaker.score = int(correct_answers / quiztaker.quiz.question_set.count() * 100)
 
-                    aggregate = models.QuizTaker.objects.filter(quiz_id =quiztaker.quiz.id,score__gt=quiztaker.score).aggregate(ranking=Count('score'))
+                    aggregate = QuizTaker.objects.filter(quiz_id =quiztaker.quiz.id,score__gt=quiztaker.score).aggregate(ranking=Count('score'))
                     quiztaker.quiz_day_rank = int(aggregate['ranking'] + 1)
                     quiztaker.save()
 
@@ -49,37 +55,39 @@ def auto_sumbit_task():
                     if datetime.datetime.now()>(lastslot.start_datetime+quiztaker.quiz.duration):
                         quiztaker = QuizTaker.objects.get(id=i.id)
                         quiztaker.complete=True
-                        quiztaker.date_finished=datetime.now()
+                        quiztaker.date_finished=datetime.datetime.now()                      
                         correct_answers = 0
 
-                        for users_answer in models.UsersAnswer.objects.filter(quiz_taker=quiztaker):
-                            answer = models.Answer.objects.get(question=users_answer.question, is_correct=True)
+                        for users_answer in UsersAnswer.objects.filter(quiz_taker=quiztaker):
+                            answer = Answer.objects.get(question=users_answer.question, is_correct=True)
                             if users_answer.answer == answer:
                                 correct_answers += 1
 
                         quiztaker.score = int(correct_answers / quiztaker.quiz.question_set.count() * 100)
 
-                        aggregate = models.QuizTaker.objects.filter(quiz_id =quiztaker.quiz.id,score__gt=quiztaker.score).aggregate(ranking=Count('score'))
+                        aggregate = QuizTaker.objects.filter(quiz_id =quiztaker.quiz.id,score__gt=quiztaker.score).aggregate(ranking=Count('score'))
                         quiztaker.quiz_day_rank = int(aggregate['ranking'] + 1)
                         quiztaker.save()
                 else:
                     if datetime.datetime.now()>(slot.start_datetime+i.quiz.duration):
                         quiztaker = QuizTaker.objects.get(id=i.id)
                         quiztaker.complete=True
-                        quiztaker.date_finished=datetime.now()
+                        quiztaker.date_finished=datetime.datetime.now()
                         correct_answers = 0
-
-                        for users_answer in models.UsersAnswer.objects.filter(quiz_taker=quiztaker):
-                            answer = models.Answer.objects.get(question=users_answer.question, is_correct=True)
+                        for users_answer in UsersAnswer.objects.filter(quiz_taker=quiztaker):
+                            answer = Answer.objects.get(question=users_answer.question, is_correct=True)
                             if users_answer.answer == answer:
                                 correct_answers += 1
 
                         quiztaker.score = int(correct_answers / quiztaker.quiz.question_set.count() * 100)
 
-                        aggregate = models.QuizTaker.objects.filter(quiz_id =quiztaker.quiz.id,score__gt=quiztaker.score).aggregate(ranking=Count('score'))
+                        aggregate = QuizTaker.objects.filter(quiz_id =quiztaker.quiz.id,score__gt=quiztaker.score).aggregate(ranking=Count('score'))
                         quiztaker.quiz_day_rank = int(aggregate['ranking'] + 1)
                         quiztaker.save()
-
+        return True
+@shared_task
+def temp_task():
+    Tester.objects.create(name="testing")
 # from celery.task.schedules import crontab
 # from celery.decorators import periodic_task
 #

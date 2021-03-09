@@ -411,11 +411,11 @@ class PersonalNotification(ListAPIView):
 
     def get_queryset(self):
         queryset = self.queryset.filter(user=self.request.user)
-        queryset2 = models.GeneralNotification.objects.filter(rollOut=True)
-        notif_list = chain(queryset, queryset2)
+        #queryset2 = models.GeneralNotification.objects.filter(rollOut=True)
+        #notif_list = chain(queryset, queryset2)
         # return queryset.order_by('-timestamp')
-        ordered = sorted(notif_list, key=operator.attrgetter('-timestamp'))
-        return ordered
+        #ordered = sorted(notif_list, key=operator.attrgetter('-timestamp'))
+        return queryset
 
 class PromocodeAPI(CreateAPIView):
     queryset = models.PromoCode.objects.all()
@@ -434,9 +434,9 @@ class PromocodeAPI(CreateAPIView):
             cart = cartmodels.UserCart.objects.get(id=request.data["cart_id"])
             cart.promocode = code
             cart.save()
-            cart = cartmodels.UserCart.objects.get(id=request.data["cart_id"])
-            serializer = cartserializer.UserCartSerializer(cart)
-            return Response(serializer.data)
+            #cart = cartmodels.UserCart.objects.get(id=request.data["cart_id"])
+            #serializer = cartserializer.UserCartSerializer(cart)
+            return Response("Added Successfully",status=200)
         
         if obj:
             return Response("User has alreadys used the promo code")
@@ -453,7 +453,7 @@ class PromoCodeViewAPI(ListAPIView):
 
 class DemoAPI(CreateAPIView):
     queryset=None
-    serializer_class=None
+    serializer_class=serializers.PromoCode
 
     def create(self,request,*args,**kwargs):
         
@@ -462,10 +462,10 @@ class DemoAPI(CreateAPIView):
         email = EmailMessage(subject='Coffeehouse sales report',
             body='Attached is sales report....',
             from_email='testingserver.12307@gmail.com',
-            to=['yashch1998@gmail.com'])
+            to=[request.user.email])
 
 # Open PDF file
-        path= quiz.answerkey
+        path= quiz.answerkey.path
         attachment = open(path, 'rb')
 
 # Attach PDF file

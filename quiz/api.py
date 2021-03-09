@@ -10,7 +10,7 @@ import datetime
 from django_filters.rest_framework import DjangoFilterBackend
 from datetime import datetime,timedelta
 from pytz import timezone
-from quiz.tasks import EndQuiz
+#from quiz.tasks import EndQuiz
 from django.core.mail import EmailMessage
 
 class MyQuizListAPI(generics.ListAPIView):
@@ -230,7 +230,7 @@ class SubmitQuizAPI(generics.GenericAPIView):
 
 		quiztaker.save()
 
-		email = EmailMessage(subject='Answer Key',body='The Answer key is attached along with this mail',from_email='testingserver.12307@gmail.com',to=[request.user.email,])
+		email = EmailMessage(subject='Answer Key',body='Dear Student,\n\nThank You for answering the quiz using UpscBasicFunda Site. \n\nThe Answer key is attached along with this mail. Please compare your answers with key. \n\nIf there are any issues in the answer key please free to contact the support team.  \n\nRegards,\nTeam UpscBasicFunda',from_email='testingserver.12307@gmail.com',to=[request.user.email,])
 
 		path= quiz.answerkey.path
 		attachment = open(path, 'rb')

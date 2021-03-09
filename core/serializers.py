@@ -1,14 +1,15 @@
 from allauth.account.adapter import get_adapter
 from rest_auth.registration.serializers import RegisterSerializer
+#from rest_auth.serializers import PasswordResetSerializer
 from rest_framework import serializers
 from rest_framework.authtoken.models import Token
 from quiz.models import *
 from . import models
 from django.contrib.auth.forms import PasswordResetForm
 from django.conf import settings
-from django.utils.translation import gettext as _
+#from django.utils.translation import gettext as _
 from dj_rest_auth.serializers import PasswordResetSerializer
-
+from allauth.account.forms import ResetPasswordForm
 from quiz.serializers import *
 
 import datetime
@@ -22,22 +23,32 @@ class UserSerializer(serializers.ModelSerializer):
         model = models.User
         fields = ('email', 'username', 'password', 'mobile', 'profile_pic', 'first_name', 'last_name')
 
-
-class CustomPasswordResetSerializer(PasswordResetSerializer):
-    def save(self):
-        request = self.context.get('request')
+#class CustomPasswordResetSerializer(PasswordResetSerializer):
+  #  password_reset_form_class = ResetPasswordForm
+   # def save(self):
+      #  request = self.context.get('request')
         # Set some values to trigger the send_email method.
-        opts = {
-            'use_https': request.is_secure(),
-            'from_email': getattr(settings, 'DEFAULT_FROM_EMAIL'),
-            'request': request,
+       # opts = {
+         #   'use_https': request.is_secure(),
+        #    'from_email': 'testingserver.12307@gmail.com',
+        #    'request': request,
             # here I have set my desired template to be used
             # don't forget to add your templates directory in settings to be found
+        #    'email_template_name': 'registration/password_reset_email.html'
+        #}
+
+       # opts.update(self.get_email_options())
+        #self.reset_form.save(**opts)
+
+class CustomPasswordResetSerializer(PasswordResetSerializer):
+    password_reset_form_class = ResetPasswordForm
+    def get_email_options(self) :
+      
+        return {
             'email_template_name': 'registration/password_reset_email.html'
         }
 
-        opts.update(self.get_email_options())
-        self.reset_form.save(**opts)
+
 
 class CustomRegisterSerializer(RegisterSerializer):
     mobile = serializers.CharField(allow_blank = True, allow_null=True)

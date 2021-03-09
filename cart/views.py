@@ -345,16 +345,21 @@ class ConfirmPaymentView(APIView):
         cart.ordered_date = timezone.now()
         cart.save()
         user_subscriptions, created = coremodels.UserSubscriptions.objects.get_or_create(user = cart.user)
-        user_subscriptions.pdfs.add(cart.pdfs.all())
-        user_subscriptions.mcqs.add(cart.mcqs.all())
-        user_subscriptions.summaries.add(cart.summaries.all())
-        user_subscriptions.sessions.add(cart.sessions.all())
-        user_subscriptions.tests.add(cart.tests.all())
+        try:
+            user_subscriptions.pdfs.add(*cart.pdfs.all())
+            user_subscriptions.mcqs.add(*cart.mcqs.all())
+            user_subscriptions.summaries.add(*cart.summaries.all())
+            user_subscriptions.sessions.add(*cart.sessions.all())
+            user_subscriptions.tests.add(*cart.tests.all())
+        except:
+            return Response("issue here")
         user_subscriptions.save()
         for i in cart.tests.all():
             if i.live ==True:
                 #message =" has been purchased. Your quiz is scheduled on :"
-                pn =PN.objects.create(user=cart.user, quiz=i)
+                #pn =PN.objects.create(user=cart.user, quiz=i,message="")
+                pn =PN(user=cart.user, quiz=i,message="")
+                pn.save()
 
 
         return Response({"message": "Payment Successfull"}, status=HTTP_200_OK)

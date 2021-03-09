@@ -9,8 +9,10 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
-
+from decouple import config
 import os
+from pathlib import Path
+import django_heroku
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -20,13 +22,13 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '1c37q-d$w#nt9hw5d#detc!kf=n@4bv*+1@&-&3)o2hnxg2jvw'
+SECRET_KEY = config('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-#ALLOWED_HOSTS = ['upscbasicfunda.herokuapp.com', 'localhost', 'upscbasicfunda.com','upscbasicfunda.in', 'www.upscbasicfunda.com', 'www.upscbasicfunda.in', "15.207.106.26", "api.upscbasicfunda.com", "127.0.0.1","http://53a9679257f8.ngrok.io"]
-ALLOWED_HOSTS =['*']
+ALLOWED_HOSTS = ['localhost', 'upscbasicfunda.com','upscbasicfunda.in', 'www.upscbasicfunda.com', 'www.upscbasicfunda.in', "15.207.106.26", "api.upscbasicfunda.com", "127.0.0.1"]
+
 
 # Application definition
 
@@ -46,7 +48,10 @@ INSTALLED_APPS = [
     'rest_auth',
     'rest_auth.registration',
     'django.contrib.sites',
+    'django_crontab',
+    # 'djcelery',
     'django_celery_results',
+    "django_celery_beat",
 
     'allauth',
     'allauth.account',
@@ -80,7 +85,7 @@ ROOT_URLCONF = 'upscbasicfunda.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR,'templates'),],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -92,6 +97,9 @@ TEMPLATES = [
         },
     },
 ]
+
+# import djcelery
+# djcelery.setup_loader()
 
 WSGI_APPLICATION = 'upscbasicfunda.wsgi.application'
 
@@ -106,7 +114,9 @@ DATABASES = {
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
-
+#TEMPLATE_DIRS = (
+ #   os.path.join(BASE_DIR, 'templates'),
+#)
 
 # Password validation
 # https://docs.djangoproject.com/en/3.0/ref/settings/#auth-password-validators
@@ -142,7 +152,7 @@ USE_I18N = True
 
 USE_L10N = True
 
-USE_TZ = True
+USE_TZ = False
 
 
 # Static files (CSS, JavaScript, Images)
@@ -151,7 +161,7 @@ USE_TZ = True
 CORS_ORIGIN_ALLOW_ALL = True
 
 
-SITE_ID = 1
+SITE_ID = 2
 
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
@@ -161,10 +171,7 @@ STATICFILES_ROOT = os.path.join(BASE_DIR, 'static/')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-TEMPLATE_DIRS = (
-    os.path.join(BASE_DIR, 'templates'),
-)
-
+ACCOUNT_PASSWORD_RESET_CONFIRM = 'http://localhost:3000/forgotpassword/'
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': (
@@ -180,6 +187,7 @@ REST_FRAMEWORK = {
 
 CSRF_COOKIE_NAME = "csrftoken"
 
+OLD_PASSWORD_FIELD_ENABLED = True
 
 # ACCOUNT_UNIQUE_EMAIL = True
 ACCOUNT_EMAIL_REQUIRED = False
@@ -193,38 +201,50 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 REST_AUTH_SERIALIZERS = {
     'USER_DETAILS_SERIALIZER': 'core.serializers.UserSerializer',
     'TOKEN_SERIALIZER': 'core.serializers.TokenSerializer',
-    'PASSWORD_RESET_SERIALIZER':'PasswordResetSerializer',
+    'PASSWORD_RESET_SERIALIZER':'core.serializers.CustomPasswordResetSerializer',
 }
 
 REST_AUTH_REGISTER_SERIALIZERS = {
     'REGISTER_SERIALIZER': 'core.serializers.CustomRegisterSerializer',
 }
 
+CRONJOBS = [
+    ('*/1 * * * *', 'quiz.cron.auto_sumbit_task'),
+    ('*/1 * * * *', 'quiz.cron.temp_task'),
+]
 
-RAZORPAY_KEY_ID = "rzp_test_d60JA5dzjyDyZ0"
-RAZORPAY_KEY_SECRET = "Kj6MjRcvzX30fZXfpTqhpgU0"
+RAZORPAY_KEY_ID = config('RAZORPAY_KEY_ID')
+RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET')
 
-SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = "1059696678278-alrfk4hk0jvpu3hqcok9vjr7fnnbtf6r.apps.googleusercontent.com"
-SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET ="9eaJWRlPNhOOTFaSJfnaCyV0"
+SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = config('SOCIAL_AUTH_GOOGLE_OAUTH2_KEY')
+SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET =config('SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET')
 
 
 # EMAIL
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_USE_TLS = True
 EMAIL_USE_SSL = False
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'upscbasicfunda@gmail.com'
-EMAIL_HOST_PASSWORD = 'upscupscupsc_1234'
-DEFAULT_FROM_EMAIL = 'UpscBasicFunda Team <noreply@upscbasicfunda.com>'
+
+#testing email settings
+EMAIL_HOST_USER =config('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL')
 
 # CELERY STUFF
-CELERY_BROKER_URL = 'redis://localhost:6379'
-CELERY_RESULT_BACKEND = 'django-db'
-CELERY_CACHE_BACKEND='django-cache'
+#CELERY_BROKER_URL = 'redis://upscbasicfunda.co0ive.ng.0001.aps1.cache.amazonaws.com:6379'
+#CELERY_BROKER_URL = 'redis://localhost:6379'
+#CELERY_RESULT_BACKEND = 'upscbasicfunda.co0ive.ng.0001.aps1.cache.amazonaws.com:6379'
+CELERY_BROKER_URL = os.environ.get("REDIS_URL","redis://redis:6379/0")
+CELERY_RESULT_BACKEND = os.environ.get("REDIS_URL","redis://redis:6379/0")
+    # 'redis://h:p2404604069197e28cdcc4ad149be0d27c9903d35c633ba78b98f94a6c66d284e@ec2-52-19-13-149.eu-west-1.compute.amazonaws.com:17039'
+#CELERY_CACHE_BACKEND='django-cache'
 CELERY_ACCEPT_CONTENT = ['application/json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
-CELERY_TIMEZONE = 'UTC'
+CELERY_TIMEZONE = 'Asia/Calcutta'
+CELERYBEAT_SCHEDULER = 'djcelery.schedulers.DatabaseScheduler'
 
 #google login 
 SOCIALACCOUNT_PROVIDERS = {
@@ -239,4 +259,4 @@ SOCIALACCOUNT_PROVIDERS = {
     }
 }
 
-
+django_heroku.settings(locals())
